@@ -1,25 +1,23 @@
 {
   "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": "./",
+    "target": "ES2023",
+    "module": "commonjs",
     "declaration": true,
-    "emitDecoratorMetadata": true,
-    "esModuleInterop": true,
-    "experimentalDecorators": true,
-    "forceConsistentCasingInFileNames": true,
-    "incremental": true,
-    "isolatedModules": true,
-    "module": "nodenext",
-    "moduleResolution": "nodenext",
-    "noFallthroughCasesInSwitch": false,
-    "noImplicitAny": false,
-    "outDir": "./dist",
-    "removeComments": true,
-    "resolvePackageJsonExports": true,
-    "skipLibCheck": true,
     "sourceMap": true,
-    "strictBindCallApply": false,
+    "inlineSources": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
     "strictNullChecks": true,
-    "target": "ES2023"
-  }
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {},
+    "types": ["node"],
+    "composite": true,
+    "outDir": "./dist/app"
+  },
+  "include": ["./src/**/*.ts"]
 }
