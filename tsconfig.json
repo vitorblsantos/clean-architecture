@@ -19,7 +19,7 @@
     },
     "types": ["node"],
     "composite": true,
-    "outDir": "./dist/app"
+    "outDir": "./dist"
   },
   "include": ["./src/**/*.ts"]
 }
