@@ -43,4 +43,8 @@ export class EnvironmentService implements AppConfig, DatabaseConfig {
   getDatabaseSync(): boolean {
     return this.configService.getOrThrow<boolean>('DATABASE_SYNCHRONIZE')
   }
+
+  getEnvironment(): string {
+    return this.configService.getOrThrow<string>('NODE_ENV')
+  }
 }
