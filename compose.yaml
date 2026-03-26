@@ -1,0 +1,44 @@
+networks:
+  app:
+    driver: bridge
+
+services:
+  app:
+    build:
+      args:
+        BUILD_FLAG: ${NODE_ENV:-development}
+      context: .
+      cache_from:
+        - demeter:latest
+      dockerfile: ./Dockerfile
+    container_name: sessions
+    environment:
+      APP_HOST: ${APP_HOST:-localhost}
+      APP_PORT: ${APP_PORT:-8080}
+    image: sessions:latest
+    networks:
+      - app
+    ports:
+      - '${APP_PORT:-8080}:${APP_PORT:-8080}'
+    restart: on-failure
+
+  postgres:
+    container_name: postgres
+    environment:
+      POSTGRES_DATABASE: ${POSTGRES_DATABASE:-clean-arch}
+      POSTGRES_HOST: ${POSTGRES_HOST:-localhost}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_SCHEMA: ${POSTGRES_SCHEMA:-public}
+      POSTGRES_SYNC: ${POSTGRES_SYNC:-true}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    image: postgres:latest
+    networks:
+      - app
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+
+volumes:
+  db:
