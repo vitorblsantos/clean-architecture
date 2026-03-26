@@ -1,8 +1,8 @@
 import { ConsoleLogger, Injectable } from '@nestjs/common'
 
 import { ILogger } from '@domain/logger/logger.interface'
-import { EnvironmentService } from '@infra/config/environment/environment.service'
 import { EEnvironment } from '@domain/enums/environment.enum'
+import { EnvironmentService } from '@infra/config/environment/environment.service'
 
 @Injectable()
 export class LoggerService extends ConsoleLogger implements ILogger {
