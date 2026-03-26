@@ -27,4 +27,4 @@ COPY --from=build /app/dist ./dist
 
 EXPOSE ${APP_PORT:-8080}
 
-CMD ["node", "dist/app/src/main"]
+CMD ["node", "dist/main"]
