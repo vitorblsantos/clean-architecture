@@ -1,15 +1,16 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
-import { DatabaseConfig } from '../../../domain/config/database.interface'
-import { AppConfig } from '../../../domain/config/app.interface'
+import { AppConfig } from '@domain/config/app.interface'
+import { DatabaseConfig } from '@domain/config/database.interface'
+import { EEnvironment } from '@domain/enums/environment.enum'
 
 @Injectable()
 export class EnvironmentService implements AppConfig, DatabaseConfig {
   constructor(private configService: ConfigService) {}
 
-  getAppEnvironment(): string {
-    return this.configService.getOrThrow<string>('NODE_ENV')
+  getAppEnvironment(): EEnvironment {
+    return this.configService.getOrThrow<EEnvironment>('NODE_ENV')
   }
 
   getAppHost(): string {
