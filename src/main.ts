@@ -1,4 +1,4 @@
-import { Logger, ValidationPipe, VersioningType } from '@nestjs/common'
+import { ValidationPipe, VersioningType } from '@nestjs/common'
 import { NestFactory } from '@nestjs/core'
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
@@ -6,14 +6,18 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 import helmet from '@fastify/helmet'
 
 import { EnvironmentService } from '@infra/config/environment/environment.service'
+import { LoggerService } from '@infra/logger/logger.service'
+
 import { AppModule } from './app.module'
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter())
-  const envService = app.get(EnvironmentService)
+  const logger = new LoggerService()
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), { logger })
 
-  const host = envService.getAppHost()
-  const port = envService.getAppPort()
+  const environment = app.get(EnvironmentService)
+
+  const host = environment.getAppHost()
+  const port = environment.getAppPort()
 
   app.enableCors({
     allowedHeaders: ['Authorization', 'Content-Type'],
@@ -64,6 +68,6 @@ async function bootstrap() {
     },
   })
 
-  await app.listen({ port, host }, () => Logger.debug(`App running on port: ${port} 🔥`))
+  await app.listen({ port, host }, () => logger.log('Bootstrap', `App running on port: ${port} 🔥`))
 }
 bootstrap()
