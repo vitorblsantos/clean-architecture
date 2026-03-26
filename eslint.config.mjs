@@ -1,14 +1,13 @@
+import { createTypeScriptImportResolver } from 'eslint-import-resolver-typescript'
+
 import js from '@eslint/js'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
-import importPlugin from 'eslint-plugin-import'
+import importXPlugin from 'eslint-plugin-import-x'
 import promisePlugin from 'eslint-plugin-promise'
 import prettier from 'eslint-plugin-prettier'
 import prettierConfig from 'eslint-config-prettier'
 import prettierRecommended from 'eslint-plugin-prettier/recommended'
-
-const typeScriptExtensions = ['.ts', '.cts', '.mts', '.tsx']
-const allExtensions = [...typeScriptExtensions, '.js', '.jsx', '.mjs', '.cjs']
 
 export default [
   js.configs.recommended,
@@ -31,34 +30,28 @@ export default [
       },
     },
     plugins: {
-      import: importPlugin,
+      'import-x': importXPlugin,
       promise: promisePlugin,
       prettier,
     },
     settings: {
-      'import/extensions': allExtensions,
-      'import/external-module-folders': ['node_modules', 'node_modules/@types'],
-      'import/parsers': {
-        '@typescript-eslint/parser': typeScriptExtensions,
-      },
-      'import/resolver': {
-        typescript: {
+      'import-x/resolver-next': [
+        createTypeScriptImportResolver({
           alwaysTryTypes: true,
           project: './tsconfig.json',
-        },
-        node: { extensions: allExtensions },
-      },
+        }),
+      ],
     },
     rules: {
       ...promisePlugin.configs['flat/recommended'].rules,
-      'import/no-unresolved': ['error', { ignore: ['^firebase-admin/'] }],
-      'import/named': 'error',
-      'import/namespace': 'error',
-      'import/default': 'error',
-      'import/export': 'error',
-      'import/no-named-as-default': 'warn',
-      'import/no-named-as-default-member': 'warn',
-      'import/no-duplicates': 'warn',
+      'import-x/no-unresolved': 'error',
+      'import-x/named': 'error',
+      'import-x/namespace': 'error',
+      'import-x/default': 'error',
+      'import-x/export': 'error',
+      'import-x/no-named-as-default': 'warn',
+      'import-x/no-named-as-default-member': 'warn',
+      'import-x/no-duplicates': 'warn',
       indent: 'off',
       quotes: ['error', 'single', { avoidEscape: true }],
       'comma-dangle': ['error', 'never'],
