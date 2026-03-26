@@ -1,11 +1,16 @@
 import { ConsoleLogger, Injectable } from '@nestjs/common'
 
 import { ILogger } from '@domain/logger/logger.interface'
+import { EnvironmentService } from '@infra/config/environment/environment.service'
 
 @Injectable()
 export class LoggerService extends ConsoleLogger implements ILogger {
+  constructor(private readonly environmentService: EnvironmentService) {
+    super()
+  }
+
   debug(context: string, message: string) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (this.environmentService.getEnvironment() !== 'production') {
       super.debug(`[DEBUG] ${message}`, context)
     }
   }
@@ -19,7 +24,7 @@ export class LoggerService extends ConsoleLogger implements ILogger {
   }
 
   verbose(context: string, message: string) {
-    if (process.env.NODE_ENV !== 'production') {
+    if (this.environmentService.getEnvironment() !== 'production') {
       super.verbose(`[VERBOSE] ${message}`, context)
     }
   }
