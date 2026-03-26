@@ -5,15 +5,23 @@ networks:
 services:
   app:
     build:
-      args:
-        BUILD_FLAG: ${NODE_ENV:-development}
       context: .
       dockerfile: ./Dockerfile
-    container_name: sessions
+    container_name: app
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
-      APP_HOST: ${APP_HOST:-localhost}
+      APP_HOST: 0.0.0.0
       APP_PORT: ${APP_PORT:-8080}
-    image: sessions:latest
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DATABASE: ${POSTGRES_DB:-clean-arch}
+      POSTGRES_SCHEMA: ${POSTGRES_SCHEMA:-public}
+      POSTGRES_SYNC: ${POSTGRES_SYNC:-true}
+    image: app:latest
     networks:
       - app
     ports:
@@ -23,20 +31,21 @@ services:
   postgres:
     container_name: postgres
     environment:
-      POSTGRES_DATABASE: ${POSTGRES_DATABASE:-clean-arch}
-      POSTGRES_HOST: ${POSTGRES_HOST:-localhost}
+      POSTGRES_DB: ${POSTGRES_DB:-clean-arch}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
-      POSTGRES_SCHEMA: ${POSTGRES_SCHEMA:-public}
-      POSTGRES_SYNC: ${POSTGRES_SYNC:-true}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
     image: postgres:latest
     networks:
       - app
     ports:
       - '${POSTGRES_PORT:-5432}:5432'
     volumes:
-      - db:/var/lib/postgresql/data
+      - db:/var/lib/postgresql
 
 volumes:
   db:
