@@ -2,10 +2,19 @@ import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
 import { DatabaseConfig } from '../../../domain/config/database.interface'
+import { AppConfig } from '../../../domain/config/app.interface'
 
 @Injectable()
-export class EnvironmentConfigService implements DatabaseConfig {
+export class EnvironmentService implements AppConfig, DatabaseConfig {
   constructor(private configService: ConfigService) {}
+
+  getAppHost(): string {
+    return this.configService.getOrThrow<string>('APP_HOST')
+  }
+
+  getAppPort(): number {
+    return this.configService.getOrThrow<number>('APP_PORT')
+  }
 
   getDatabaseHost(): string {
     return this.configService.getOrThrow<string>('DATABASE_HOST')
