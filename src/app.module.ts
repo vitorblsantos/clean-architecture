@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
 
-import { EnvironmentConfigModule } from './infra/config/environment/environment.module'
+import { EnvironmentModule } from './infra/config/environment/environment.module'
 
 @Module({
-  imports: [EnvironmentConfigModule],
+  imports: [EnvironmentModule],
   controllers: [],
   providers: [],
 })
