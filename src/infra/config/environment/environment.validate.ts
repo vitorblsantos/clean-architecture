@@ -1,6 +1,8 @@
 import { Logger } from '@nestjs/common'
 import { z } from 'zod'
 
+import { EEnvironment } from '@domain/enums/environment.enum'
+
 const envSchema = z.object({
   APP_HOST: z.string().default('0.0.0.0'),
   APP_PORT: z.coerce.number().default(8080),
@@ -13,7 +15,7 @@ const envSchema = z.object({
   DATABASE_SYNCHRONIZE: z.coerce.boolean().default(false),
   DATABASE_USER: z.string().default('postgres'),
 
-  NODE_ENV: z.enum(['development', 'local', 'production', 'test']).default('development'),
+  NODE_ENV: z.enum(EEnvironment).default(EEnvironment.Development),
 })
 
 export type Env = z.infer<typeof envSchema>
