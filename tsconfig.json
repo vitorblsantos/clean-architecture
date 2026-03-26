@@ -14,7 +14,9 @@
     "strictNullChecks": true,
     "skipLibCheck": true,
     "baseUrl": ".",
-    "paths": {},
+    "paths": {
+      "@infra/*": ["src/infra/*"]
+    },
     "types": ["node"],
     "composite": true,
     "outDir": "./dist/app"
