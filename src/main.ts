@@ -64,6 +64,6 @@ async function bootstrap() {
     },
   })
 
-  await app.listen({ port, host }, () => Logger.debug(`Facade running on port: ${port} 🔥`))
+  await app.listen({ port, host }, () => Logger.debug(`App running on port: ${port} 🔥`))
 }
 bootstrap()
