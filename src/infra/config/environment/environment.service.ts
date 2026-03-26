@@ -8,6 +8,10 @@ import { AppConfig } from '../../../domain/config/app.interface'
 export class EnvironmentService implements AppConfig, DatabaseConfig {
   constructor(private configService: ConfigService) {}
 
+  getAppEnvironment(): string {
+    return this.configService.getOrThrow<string>('NODE_ENV')
+  }
+
   getAppHost(): string {
     return this.configService.getOrThrow<string>('APP_HOST')
   }
@@ -42,9 +46,5 @@ export class EnvironmentService implements AppConfig, DatabaseConfig {
 
   getDatabaseSync(): boolean {
     return this.configService.getOrThrow<boolean>('DATABASE_SYNCHRONIZE')
-  }
-
-  getEnvironment(): string {
-    return this.configService.getOrThrow<string>('NODE_ENV')
   }
 }
