@@ -2,6 +2,7 @@ import { ConsoleLogger, Injectable } from '@nestjs/common'
 
 import { ILogger } from '@domain/logger/logger.interface'
 import { EnvironmentService } from '@infra/config/environment/environment.service'
+import { EEnvironment } from '@domain/enums/environment.enum'
 
 @Injectable()
 export class LoggerService extends ConsoleLogger implements ILogger {
@@ -10,9 +11,9 @@ export class LoggerService extends ConsoleLogger implements ILogger {
   }
 
   debug(context: string, message: string) {
-    if (this.environmentService.getEnvironment() !== 'production') {
-      super.debug(`[DEBUG] ${message}`, context)
-    }
+    if (this.environmentService.getAppEnvironment() === EEnvironment.Production) return
+
+    super.debug(`[DEBUG] ${message}`, context)
   }
 
   error(context: string, message: string, trace?: string) {
@@ -24,9 +25,9 @@ export class LoggerService extends ConsoleLogger implements ILogger {
   }
 
   verbose(context: string, message: string) {
-    if (this.environmentService.getEnvironment() !== 'production') {
-      super.verbose(`[VERBOSE] ${message}`, context)
-    }
+    if (this.environmentService.getAppEnvironment() === EEnvironment.Production) return
+
+    super.verbose(`[VERBOSE] ${message}`, context)
   }
 
   warn(context: string, message: string) {
