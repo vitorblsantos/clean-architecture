@@ -8,8 +8,6 @@ services:
       args:
         BUILD_FLAG: ${NODE_ENV:-development}
       context: .
-      cache_from:
-        - demeter:latest
       dockerfile: ./Dockerfile
     container_name: sessions
     environment:
