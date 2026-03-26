@@ -14,4 +14,4 @@ import { validate } from './environment.validate'
   providers: [EnvironmentConfigService],
   exports: [EnvironmentConfigService],
 })
-export class EnvironmentConfigModule {}
+export class EnvironmentModule {}
