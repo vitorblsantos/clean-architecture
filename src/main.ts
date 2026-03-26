@@ -11,12 +11,11 @@ import { LoggerService } from '@infra/logger/logger.service'
 import { AppModule } from './app.module'
 
 async function bootstrap() {
-  const logger = new LoggerService()
-  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter(), { logger })
+  const app = await NestFactory.create<NestFastifyApplication>(AppModule, new FastifyAdapter())
 
   const environment = app.get(EnvironmentService)
-
   const host = environment.getAppHost()
+  const logger = app.get(LoggerService)
   const port = environment.getAppPort()
 
   app.enableCors({
@@ -40,6 +39,7 @@ async function bootstrap() {
   })
 
   app.useGlobalPipes(new ValidationPipe())
+  app.useLogger(logger)
 
   const swaggerConfig = new DocumentBuilder()
     .setDescription('Clean Architecture API documentation')
@@ -68,6 +68,6 @@ async function bootstrap() {
     },
   })
 
-  await app.listen({ port, host }, () => logger.log('Bootstrap', `App running on port: ${port} 🔥`))
+  await app.listen({ port, host }, () => logger.debug('Bootstrap', `App running on port: ${port} 🔥`))
 }
 bootstrap()
