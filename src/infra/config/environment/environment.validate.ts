@@ -24,7 +24,7 @@ export const validate = (config: Record<string, unknown>): Env => {
   const parsed = envSchema.safeParse(config)
 
   if (!parsed.success) {
-    Logger.error(parsed.error.format(), 'EnvironmentValidator')
+    Logger.error(z.treeifyError(parsed.error), 'environment.validate')
     throw new Error('Invalid environment variables')
   }
 
