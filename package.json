@@ -71,7 +71,7 @@
     "build": "nest build",
     "dev": "nest start --watch",
     "debug": "nest start --debug --watch",
-    "start": "node dist/main",
+    "start": "node dist/app/src/main",
     "lint": "eslint . --fix",
     "prepare": "husky",
     "prettier": "prettier -c . --write"
