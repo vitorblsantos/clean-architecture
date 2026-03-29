@@ -1,7 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common'
 
 import { EnvironmentModule } from '@infra/config/environment/environment.module'
-import { EnvironmentService } from '@infra/config/environment/environment.service'
 
 import { LoggerModule } from '@infra/logger/logger.module'
 import { LoggerService } from '@infra/logger/logger.service'
@@ -24,7 +23,7 @@ export class UsecasesProxyModule {
       module: UsecasesProxyModule,
       providers: [
         {
-          inject: [LoggerService, EnvironmentService, DatabaseUserRepository],
+          inject: [LoggerService, DatabaseUserRepository],
           provide: UsecasesProxyModule.SAY_HELLO_USECASES_PROXY,
           useFactory: (logger: LoggerService, userRepo: DatabaseUserRepository) =>
             new UseCaseProxy(new SayHelloUseCase(logger, userRepo)),
