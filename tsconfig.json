@@ -15,6 +15,7 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@database/*": ["database/*"],
       "@domain/*": ["src/domain/*"],
       "@infra/*": ["src/infra/*"],
       "@usecases/*": ["src/usecases/*"]
@@ -22,5 +23,5 @@
     "types": ["node"],
     "outDir": "./dist"
   },
-  "include": ["./src/**/*.ts"]
+  "include": ["./src/**/*.ts", "./database/**/*.ts"]
 }
