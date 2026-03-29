@@ -7,7 +7,7 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
-    container_name: app
+    container_name: clean-arch-app
     depends_on:
       postgres:
         condition: service_healthy
@@ -16,11 +16,11 @@ services:
       APP_PORT: ${APP_PORT:-8080}
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
-      DATABASE_USER: ${POSTGRES_USER:-postgres}
-      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      DATABASE_NAME: ${POSTGRES_DB:-clean-arch}
-      DATABASE_SCHEMA: ${POSTGRES_SCHEMA:-public}
-      DATABASE_SYNCHRONIZE: ${POSTGRES_SYNC:-true}
+      DATABASE_USER: ${DATABASE_USER:-postgres}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      DATABASE_NAME: ${DATABASE_DB:-clean-arch}
+      DATABASE_SCHEMA: ${DATABASE_SCHEMA:-public}
+      DATABASE_SYNCHRONIZE: ${DATABASE_SYNC:-true}
     image: app:latest
     networks:
       - app
@@ -29,13 +29,13 @@ services:
     restart: on-failure
 
   postgres:
-    container_name: postgres
+    container_name: clean-arch-postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-clean-arch}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: ${DATABASE_NAME:-clean-arch}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-postgres}']
+      test: ['CMD-SHELL', 'pg_isready -U ${DATABASE_USER:-postgres}']
       interval: 5s
       timeout: 5s
       retries: 5
