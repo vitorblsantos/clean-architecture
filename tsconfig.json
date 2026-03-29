@@ -20,7 +20,6 @@
       "@usecases/*": ["src/usecases/*"]
     },
     "types": ["node"],
-    "composite": true,
     "outDir": "./dist"
   },
   "include": ["./src/**/*.ts"]
