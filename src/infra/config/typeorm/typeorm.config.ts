@@ -5,7 +5,7 @@ if (process.env.NODE_ENV === 'local') dotenv.config({ path: './env' })
 
 const config: DataSourceOptions = {
   database: process.env.DATABASE_NAME,
-  entities: [__dirname + './../../**/*.entity{.ts,.js}'],
+  entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
   host: process.env.DATABASE_HOST,
   migrationsRun: false,
   migrations: ['database/migrations/**/*{.ts,.js}'],
