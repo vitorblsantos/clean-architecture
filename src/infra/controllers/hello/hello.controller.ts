@@ -8,8 +8,11 @@ import { SayHelloUseCase } from '@usecases/hello/sayHello.usecase'
 
 import { HelloDto } from './hello-dto.class'
 
-@Controller('hello')
-@ApiTags('hello')
+@ApiTags('Hello')
+@Controller({
+  path: 'hello',
+  version: '1',
+})
 export class HelloController {
   constructor(
     @Inject(UsecasesProxyModule.SAY_HELLO_USECASES_PROXY)
