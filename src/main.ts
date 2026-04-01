@@ -5,6 +5,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import helmet from '@fastify/helmet'
 
+import { LoggingInterceptor } from '@infra/common/interceptors/logger.interceptor'
+import { ResponseInterceptor } from '@infra/common/interceptors/response.interceptor'
 import { EnvironmentService } from '@infra/config/environment/environment.service'
 import { LoggerService } from '@infra/logger/logger.service'
 
@@ -38,7 +40,9 @@ async function bootstrap() {
     },
   })
 
-  app.useGlobalPipes(new ValidationPipe())
+  app.useGlobalInterceptors(new LoggingInterceptor(logger))
+  app.useGlobalInterceptors(new ResponseInterceptor())
+  app.useGlobalPipes(new ValidationPipe({ transform: true, whitelist: true }))
   app.useLogger(logger)
 
   const swaggerConfig = new DocumentBuilder()
