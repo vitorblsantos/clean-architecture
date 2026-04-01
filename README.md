@@ -42,24 +42,24 @@ docker compose up
 
 ## Docker Compose
 
-| Serviço    | Imagem            | Porta  | Pra que serve                                                    |
-| ---------- | ----------------- | ------ | ---------------------------------------------------------------- |
-| `app`      | build local       | `8080` | Aplicação NestJS.                                                |
+| Serviço    | Imagem            | Porta  | Pra que serve                                                     |
+| ---------- | ----------------- | ------ | ----------------------------------------------------------------- |
+| `app`      | build local       | `8080` | Aplicação NestJS.                                                 |
 | `postgres` | `postgres:latest` | `5432` | Banco de dados relacional. Healthcheck com `pg_isready` embutido. |
 
 ## Variáveis de ambiente
 
-| Variável               | Default      | Descrição                  |
-| ---------------------- | ------------ | -------------------------- |
-| `APP_HOST`             | `localhost`  | Host da aplicação          |
-| `APP_PORT`             | `8080`       | Porta da aplicação         |
-| `DATABASE_HOST`        | `localhost`  | Host do PostgreSQL         |
-| `DATABASE_PORT`        | `5432`       | Porta do PostgreSQL        |
-| `DATABASE_USER`        | `postgres`   | Usuário do banco           |
-| `DATABASE_PASSWORD`    | `postgres`   | Senha do banco             |
-| `DATABASE_NAME`        | `clean-arch` | Nome do banco              |
-| `DATABASE_SCHEMA`      | `public`     | Schema do banco            |
-| `DATABASE_SYNCHRONIZE` | `true`       | Sincronizar entidades      |
+| Variável               | Default      | Descrição             |
+| ---------------------- | ------------ | --------------------- |
+| `APP_HOST`             | `localhost`  | Host da aplicação     |
+| `APP_PORT`             | `8080`       | Porta da aplicação    |
+| `DATABASE_HOST`        | `localhost`  | Host do PostgreSQL    |
+| `DATABASE_PORT`        | `5432`       | Porta do PostgreSQL   |
+| `DATABASE_USER`        | `postgres`   | Usuário do banco      |
+| `DATABASE_PASSWORD`    | `postgres`   | Senha do banco        |
+| `DATABASE_NAME`        | `clean-arch` | Nome do banco         |
+| `DATABASE_SCHEMA`      | `public`     | Schema do banco       |
+| `DATABASE_SYNCHRONIZE` | `true`       | Sincronizar entidades |
 
 Swagger disponível em `/`.
 
@@ -90,12 +90,12 @@ Cada operação de escrita é representada por um **Command** (POJO, sem decorat
 Controller → CommandBus → Handler (infra) → UseCase (usecases) → Domain interfaces
 ```
 
-| Arquivo            | Camada       | Responsabilidade                                                 |
-| ------------------ | ------------ | ---------------------------------------------------------------- |
-| `*.command.ts`     | `usecases/`  | Define o payload do comando. POJO puro.                          |
-| `*.usecase.ts`     | `usecases/`  | Lógica de negócio. Depende só do `domain/`.                      |
-| `*.handler.ts`     | `infra/`     | `@CommandHandler`: injeta serviços NestJS e chama o use case.    |
-| `*.controller.ts`  | `infra/`     | Valida o input HTTP e despacha o `CommandBus`.                   |
+| Arquivo           | Camada      | Responsabilidade                                              |
+| ----------------- | ----------- | ------------------------------------------------------------- |
+| `*.command.ts`    | `usecases/` | Define o payload do comando. POJO puro.                       |
+| `*.usecase.ts`    | `usecases/` | Lógica de negócio. Depende só do `domain/`.                   |
+| `*.handler.ts`    | `infra/`    | `@CommandHandler`: injeta serviços NestJS e chama o use case. |
+| `*.controller.ts` | `infra/`    | Valida o input HTTP e despacha o `CommandBus`.                |
 
 ### Na prática
 
