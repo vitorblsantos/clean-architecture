@@ -13,7 +13,7 @@ import { UsecasesProxyModule } from '@infra/usecases-proxy/usecases-proxy.module
     ControllersModule,
     EnvironmentModule,
     LoggerModule,
-    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 10 }]),
+    ThrottlerModule.forRoot([{ limit: 10, ttl: 60_000 }]),
     UsecasesProxyModule.register(),
   ],
   providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
