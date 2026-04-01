@@ -5,16 +5,13 @@ import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 
 export class ResponseFormat<T> {
-  @ApiProperty()
-  isArray: boolean
-  @ApiProperty()
-  path: string
+  data: T
   @ApiProperty()
   duration: string
   @ApiProperty()
   method: string
-
-  data: T
+  @ApiProperty()
+  path: string
 }
 
 @Injectable()
@@ -27,10 +24,9 @@ export class ResponseInterceptor<T> implements NestInterceptor<T, ResponseFormat
     return next.handle().pipe(
       map((data) => ({
         data,
-        isArray: Array.isArray(data),
-        path: request.url,
         duration: `${Date.now() - now}ms`,
         method: request.method,
+        path: request.url,
       })),
     )
   }
