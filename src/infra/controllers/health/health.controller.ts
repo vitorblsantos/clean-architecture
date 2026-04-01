@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common'
 import { ApiOperation, ApiTags } from '@nestjs/swagger'
+import { SkipThrottle } from '@nestjs/throttler'
 import {
   DiskHealthIndicator,
   HealthCheck,
@@ -8,6 +9,7 @@ import {
   TypeOrmHealthIndicator,
 } from '@nestjs/terminus'
 
+@SkipThrottle()
 @ApiTags('Health')
 @Controller({
   path: 'health',
