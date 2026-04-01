@@ -1,10 +1,8 @@
-import { Body, Controller, Inject, Post } from '@nestjs/common'
+import { Body, Controller, Post } from '@nestjs/common'
+import { CommandBus } from '@nestjs/cqrs'
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 
-import { UsecasesProxyModule } from '@infra/usecases-proxy/usecases-proxy.module'
-import { UseCaseProxy } from '@infra/usecases-proxy/usecases-proxy'
-
-import { SayHelloUseCase } from '@usecases/hello/sayHello.usecase'
+import { SayHelloCommand } from '@usecases/hello/sayHello.command'
 
 import { HelloDto } from './hello-dto.class'
 
@@ -14,15 +12,12 @@ import { HelloDto } from './hello-dto.class'
   version: '1',
 })
 export class HelloController {
-  constructor(
-    @Inject(UsecasesProxyModule.SAY_HELLO_USECASES_PROXY)
-    private readonly sayHelloUsecaseProxy: UseCaseProxy<SayHelloUseCase>,
-  ) {}
+  constructor(private readonly commandBus: CommandBus) {}
 
   @Post('/')
   @ApiBody({ type: HelloDto })
   @ApiOperation({ description: 'say hello' })
   async login(@Body() body: HelloDto) {
-    return await this.sayHelloUsecaseProxy.getInstance().execute(body.id)
+    return await this.commandBus.execute(new SayHelloCommand(body.id))
   }
 }
