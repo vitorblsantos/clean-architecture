@@ -11,12 +11,10 @@ import { ProfileModel } from '@infra/models/profile/profile.model'
 export class ProfileRepository implements IProfileRepository {
   constructor(
     @InjectRepository(ProfileModel)
-    private readonly userEntityRepository: Repository<ProfileModel>,
+    private readonly profileRepository: Repository<ProfileModel>,
   ) {}
 
   async create(profile: ProfileEntity): Promise<ProfileEntity> {
-    const user = this.userEntityRepository.create(profile)
-    await this.userEntityRepository.save(user)
-    return user
+    return await this.profileRepository.save(profile)
   }
 }
