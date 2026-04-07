@@ -3,11 +3,19 @@ networks:
     driver: bridge
 
 services:
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - '8081:8080'
+    networks:
+      - app
+
   app:
     build:
       context: .
       dockerfile: ./Dockerfile
-    container_name: clean-arch-app
+    container_name: app
     depends_on:
       postgres:
         condition: service_healthy
@@ -29,7 +37,7 @@ services:
     restart: on-failure
 
   postgres:
-    container_name: clean-arch-postgres
+    container_name: postgres
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-clean-arch}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
@@ -45,7 +53,7 @@ services:
     ports:
       - '${POSTGRES_PORT:-5432}:5432'
     volumes:
-      - db:/var/lib/postgresql
+      - db:/var/lib/postgresql/data
 
 volumes:
   db:
