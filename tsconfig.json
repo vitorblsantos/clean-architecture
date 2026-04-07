@@ -15,7 +15,8 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@app/*": ["src/app/*"],
+      "@api/*": ["src/api/*"],
+      "@app/*": ["src/application/*"],
       "@database/*": ["database/*"],
       "@domain/*": ["src/domain/*"],
       "@infra/*": ["src/infra/*"]
