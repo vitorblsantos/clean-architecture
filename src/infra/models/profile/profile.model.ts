@@ -1,13 +1,12 @@
-import { Entity, Column, Index, CreateDateColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, Column, CreateDateColumn, PrimaryColumn, UpdateDateColumn } from 'typeorm'
 
 @Entity()
 export class ProfileModel {
+  @PrimaryColumn('varchar')
+  id: string
+
   @CreateDateColumn()
   createdAt: Date
-
-  @Index({ unique: true })
-  @Column('varchar')
-  id: string
 
   @Column('varchar')
   lastname: string
