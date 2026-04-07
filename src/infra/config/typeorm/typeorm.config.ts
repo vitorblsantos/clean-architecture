@@ -8,7 +8,7 @@ const config: DataSourceOptions = {
   entities: [__dirname + '/../../**/*.entity{.ts,.js}'],
   host: process.env.DATABASE_HOST,
   migrationsRun: false,
-  migrations: ['database/migrations/**/*{.ts,.js}'],
+  migrations: ['src/infra/persistence/typeorm/migrations/*{.ts,.js}'],
   migrationsTableName: 'migrations',
   password: process.env.DATABASE_PASSWORD,
   port: parseInt(process.env.DATABASE_PORT!),
