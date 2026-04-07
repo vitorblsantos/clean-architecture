@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common'
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs'
 import { v6 as uuidv6 } from 'uuid'
 
@@ -11,6 +12,7 @@ export class CreateProfileHandler implements ICommandHandler<CreateProfileComman
   constructor(
     private readonly eventBus: EventBus,
     private readonly logger: LoggerService,
+    @Inject('IProfileRepository')
     private readonly profileRepository: IProfileRepository,
   ) {}
 
