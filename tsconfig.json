@@ -17,12 +17,11 @@
     "paths": {
       "@api/*": ["src/api/*"],
       "@app/*": ["src/application/*"],
-      "@database/*": ["database/*"],
       "@domain/*": ["src/domain/*"],
       "@infra/*": ["src/infra/*"]
     },
     "types": ["node"],
     "outDir": "./dist"
   },
-  "include": ["./src/**/*.ts", "./database/**/*.ts"]
+  "include": ["./src/**/*.ts"]
 }
