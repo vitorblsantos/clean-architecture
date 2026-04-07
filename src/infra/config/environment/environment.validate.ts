@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common'
 import { z } from 'zod'
 
-import { EEnvironment } from '@domain/enums/environment.enum'
+import { EEnvironment } from '@domain/interfaces/enums/environment.enum'
 
 const envSchema = z.object({
   APP_HOST: z.string().default('0.0.0.0'),
