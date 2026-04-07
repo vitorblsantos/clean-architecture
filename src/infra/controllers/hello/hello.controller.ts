@@ -2,7 +2,7 @@ import { Body, Controller, Post } from '@nestjs/common'
 import { CommandBus } from '@nestjs/cqrs'
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
 
-import { SayHelloCommand } from '@usecases/hello/sayHello.command'
+import { SayHelloCommand } from '@app/hello/sayHello.command'
 
 import { HelloDto } from './hello-dto.class'
 
