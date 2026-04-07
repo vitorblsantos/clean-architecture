@@ -8,7 +8,7 @@ import { DatabaseUserRepository } from './users.repository'
 
 @Module({
   imports: [TypeOrmConfigModule, TypeOrmModule.forFeature([User])],
-  providers: [DatabaseUserRepository],
-  exports: [DatabaseUserRepository],
+  providers: [DatabaseUserRepository, { provide: 'UserRepository', useClass: DatabaseUserRepository }],
+  exports: [DatabaseUserRepository, 'UserRepository'],
 })
 export class RepositoriesModule {}

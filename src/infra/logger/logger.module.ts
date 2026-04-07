@@ -5,7 +5,7 @@ import { LoggerService } from './logger.service'
 
 @Module({
   imports: [EnvironmentModule],
-  providers: [LoggerService],
-  exports: [LoggerService],
+  providers: [LoggerService, { provide: 'ILogger', useClass: LoggerService }],
+  exports: [LoggerService, 'ILogger'],
 })
 export class LoggerModule {}
