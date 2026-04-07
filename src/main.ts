@@ -5,10 +5,10 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import helmet from '@fastify/helmet'
 
-import { LoggingInterceptor } from '@infra/common/interceptors/logger.interceptor'
-import { ResponseInterceptor } from '@infra/common/interceptors/response.interceptor'
+import { LoggingInterceptor } from '@app/interceptors/logger/logger.interceptor'
+import { ResponseInterceptor } from '@app/interceptors/response/response.interceptor'
 import { EnvironmentService } from '@infra/config/environment/environment.service'
-import { LoggerService } from '@infra/logger/logger.service'
+import { LoggerService } from 'src/application/services/logger/logger.service'
 
 import { AppModule } from './app.module'
 
