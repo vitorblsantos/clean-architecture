@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
 
 import { CreateProfileDto } from '@api/dto/profile/profile.dto'
 import { LoggerService } from '@app/services/logger/logger.service'
@@ -9,9 +9,10 @@ import { ProfileDomainService } from '@domain/services/profile/profile.service'
 @Injectable()
 export class ProfileService {
   constructor(
-    private readonly repository: IProfileRepository,
     private readonly logger: LoggerService,
     private readonly profileDomainService: ProfileDomainService,
+    @Inject('IProfileRepository')
+    private readonly profileRepository: IProfileRepository,
   ) {}
 
   async create(payload: CreateProfileDto): Promise<ProfileEntity> {
@@ -23,6 +24,6 @@ export class ProfileService {
       lastname,
     })
 
-    return await this.repository.create(profileEntity)
+    return await this.profileRepository.create(profileEntity)
   }
 }
