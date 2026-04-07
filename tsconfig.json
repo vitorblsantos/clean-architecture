@@ -15,10 +15,10 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@app/*": ["src/app/*"],
       "@database/*": ["database/*"],
       "@domain/*": ["src/domain/*"],
-      "@infra/*": ["src/infra/*"],
-      "@usecases/*": ["src/usecases/*"]
+      "@infra/*": ["src/infra/*"]
     },
     "types": ["node"],
     "outDir": "./dist"
