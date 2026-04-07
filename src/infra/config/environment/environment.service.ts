@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
-import { AppConfig } from '@domain/config/app.interface'
-import { DatabaseConfig } from '@domain/config/database.interface'
-import { EEnvironment } from '@domain/enums/environment.enum'
+import { AppConfig } from '@domain/interfaces/config/app.interface'
+import { DatabaseConfig } from '@domain/interfaces/config/database.interface'
+import { EEnvironment } from '@domain/interfaces/enums/environment.enum'
 
 @Injectable()
 export class EnvironmentService implements AppConfig, DatabaseConfig {
