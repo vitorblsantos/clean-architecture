@@ -5,7 +5,7 @@ import { addUser1774808948434 } from '@database/migrations/index.migrations'
 
 import { EnvironmentModule } from '@infra/config/environment/environment.module'
 import { EnvironmentService } from '@infra/config/environment/environment.service'
-import { User } from '@infra/entities/user.entity'
+import { User } from '@infra/models/profile/profile.model'
 
 export const getTypeOrmModuleOptions = (config: EnvironmentService): TypeOrmModuleOptions => ({
   type: 'postgres',
