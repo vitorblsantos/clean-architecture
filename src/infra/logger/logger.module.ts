@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common'
 
+import { LoggerService } from 'src/application/services/logger/logger.service'
 import { EnvironmentModule } from '@infra/config/environment/environment.module'
-import { LoggerService } from './logger.service'
 
 @Module({
   imports: [EnvironmentModule],
-  providers: [LoggerService, { provide: 'ILogger', useClass: LoggerService }],
-  exports: [LoggerService, 'ILogger'],
+  providers: [LoggerService],
+  exports: [LoggerService],
 })
 export class LoggerModule {}
