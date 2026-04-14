@@ -17,4 +17,8 @@ export class ProfileRepository implements IProfileRepository {
   async create(profile: ProfileEntity): Promise<ProfileEntity> {
     return await this.profileRepository.save(profile)
   }
+
+  async findAll(): Promise<ProfileEntity[]> {
+    return await this.profileRepository.find()
+  }
 }
