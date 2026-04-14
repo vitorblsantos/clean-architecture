@@ -1,15 +1,14 @@
 import { Inject, Injectable } from '@nestjs/common'
 
 import { CreateProfileDto } from '@api/dto/profile/profile.dto'
-import { LoggerService } from '@app/services/logger/logger.service'
 import { ProfileEntity } from '@domain/entities/profile.entity'
 import { IProfileRepository } from '@domain/interfaces/repositories/profile-repository.interface'
+import { IProfileService } from '@domain/interfaces/services/profile-service.interfaces'
 import { ProfileDomainService } from '@domain/services/profile/profile.service'
 
 @Injectable()
-export class ProfileService {
+export class ProfileService implements IProfileService {
   constructor(
-    private readonly logger: LoggerService,
     private readonly profileDomainService: ProfileDomainService,
     @Inject('IProfileRepository')
     private readonly profileRepository: IProfileRepository,
@@ -17,7 +16,6 @@ export class ProfileService {
 
   async create(payload: CreateProfileDto): Promise<ProfileEntity> {
     const { name, lastname } = payload
-    this.logger.log('ProfileService', 'Creating profile.')
 
     const profileEntity = this.profileDomainService.createProfileEntity({
       name,
@@ -25,5 +23,9 @@ export class ProfileService {
     })
 
     return await this.profileRepository.create(profileEntity)
+  }
+
+  async findAll(): Promise<ProfileEntity[]> {
+    return await this.profileRepository.findAll()
   }
 }
