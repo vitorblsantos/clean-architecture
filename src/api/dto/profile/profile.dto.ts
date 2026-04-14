@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger'
 import { IsNotEmpty, IsString } from 'class-validator'
 
-export class CreateProfileDto {
+export class ProfileDto {
   @ApiProperty({ required: true, default: 'John' })
   @IsNotEmpty()
   @IsString()
