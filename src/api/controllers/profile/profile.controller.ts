@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common'
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common'
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
 
-import { ProfileDto } from '@api/dto/profile/profile.dto'
+import { ProfileDto, UpdateProfileDto } from '@api/dto/profile/profile.dto'
 import { ProfileService } from '@app/services/profile/profile.service'
 import { ProfileEntity } from '@domain/entities/profile.entity'
 
@@ -31,5 +31,13 @@ export class ProfileController {
   @ApiOperation({ description: 'Create a new profile' })
   async create(@Body() body: ProfileDto): Promise<ProfileEntity> {
     return await this.profileService.create(body)
+  }
+
+  @Put('/:id')
+  @ApiParam({ name: 'id', description: 'Profile id', example: '123e4567-e89b-12d3-a456-426614174000' })
+  @ApiBody({ type: UpdateProfileDto })
+  @ApiOperation({ description: 'Update a profile' })
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateProfileDto): Promise<ProfileEntity> {
+    return await this.profileService.update(id, body)
   }
 }
