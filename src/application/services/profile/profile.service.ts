@@ -1,6 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common'
+import { BadRequestException, Inject, Injectable } from '@nestjs/common'
 
-import { CreateProfileDto } from '@api/dto/profile/profile.dto'
 import { ProfileEntity } from '@domain/entities/profile.entity'
 import { IProfileRepository } from '@domain/interfaces/repositories/profile-repository.interface'
 import { IProfileService } from '@domain/interfaces/services/profile-service.interfaces'
@@ -14,8 +13,10 @@ export class ProfileService implements IProfileService {
     private readonly profileRepository: IProfileRepository,
   ) {}
 
-  async create(payload: CreateProfileDto): Promise<ProfileEntity> {
+  async create(payload: Partial<ProfileEntity>): Promise<ProfileEntity> {
     const { name, lastname } = payload
+
+    if (!lastname || !name) throw new BadRequestException('Name and lastname are required')
 
     const profileEntity = this.profileDomainService.createProfileEntity({
       name,
@@ -31,5 +32,9 @@ export class ProfileService implements IProfileService {
 
   async findById(id: string): Promise<ProfileEntity> {
     return await this.profileRepository.findById(id)
+  }
+
+  async update(id: string, payload: Partial<ProfileEntity>): Promise<ProfileEntity> {
+    return await this.profileRepository.update(id, payload)
   }
 }
