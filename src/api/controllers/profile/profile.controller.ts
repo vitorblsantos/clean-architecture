@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common'
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
 
-import { CreateProfileDto } from '@api/dto/profile/profile.dto'
+import { ProfileDto } from '@api/dto/profile/profile.dto'
 import { ProfileService } from '@app/services/profile/profile.service'
 import { ProfileEntity } from '@domain/entities/profile.entity'
 
@@ -27,9 +27,9 @@ export class ProfileController {
   }
 
   @Post('/')
-  @ApiBody({ type: CreateProfileDto })
+  @ApiBody({ type: ProfileDto })
   @ApiOperation({ description: 'Create a new profile' })
-  async create(@Body() body: CreateProfileDto): Promise<ProfileEntity> {
+  async create(@Body() body: ProfileDto): Promise<ProfileEntity> {
     return await this.profileService.create(body)
   }
 }
