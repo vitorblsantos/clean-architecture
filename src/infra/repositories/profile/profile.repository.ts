@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
@@ -20,5 +20,13 @@ export class ProfileRepository implements IProfileRepository {
 
   async findAll(): Promise<ProfileEntity[]> {
     return await this.profileRepository.find()
+  }
+
+  async findById(id: string): Promise<ProfileEntity> {
+    const profile = await this.profileRepository.findOne({ where: { id } })
+
+    if (!profile) throw new NotFoundException(`Profile with id ${id} not found`)
+
+    return profile
   }
 }

@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Post } from '@nestjs/common'
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post } from '@nestjs/common'
+import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger'
 
 import { CreateProfileDto } from '@api/dto/profile/profile.dto'
 import { ProfileService } from '@app/services/profile/profile.service'
@@ -17,6 +17,13 @@ export class ProfileController {
   @ApiOperation({ description: 'Get all profiles' })
   async findAll(): Promise<ProfileEntity[]> {
     return await this.profileService.findAll()
+  }
+
+  @Get('/:id')
+  @ApiParam({ name: 'id', description: 'Profile id', example: '123e4567-e89b-12d3-a456-426614174000' })
+  @ApiOperation({ description: 'Get a profile by id' })
+  async findById(@Param('id', ParseUUIDPipe) id: string): Promise<ProfileEntity> {
+    return await this.profileService.findById(id)
   }
 
   @Post('/')

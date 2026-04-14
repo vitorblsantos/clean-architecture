@@ -28,4 +28,8 @@ export class ProfileService implements IProfileService {
   async findAll(): Promise<ProfileEntity[]> {
     return await this.profileRepository.findAll()
   }
+
+  async findById(id: string): Promise<ProfileEntity> {
+    return await this.profileRepository.findById(id)
+  }
 }
