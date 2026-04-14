@@ -12,7 +12,10 @@ const envSchema = z.object({
   DATABASE_PASSWORD: z.string().default('postgres'),
   DATABASE_PORT: z.coerce.number().default(5432),
   DATABASE_SCHEMA: z.string().default('public'),
-  DATABASE_SYNCHRONIZE: z.coerce.boolean().default(false),
+  DATABASE_SYNCHRONIZE: z
+    .string()
+    .default('false')
+    .transform((val) => val === 'true'),
   DATABASE_USER: z.string().default('postgres'),
 
   NODE_ENV: z.enum(EEnvironment).default(EEnvironment.Development),
