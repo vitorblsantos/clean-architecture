@@ -4,7 +4,6 @@ import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
 import { EnvironmentModule } from '@infra/config/environment/environment.module'
 import { EnvironmentService } from '@infra/config/environment/environment.service'
 import { ProfileModel } from '@infra/models/profile/profile.model'
-import { typeOrmMigrations } from '@infra/persistence/typeorm/typeorm.migrations'
 
 export const getTypeOrmModuleOptions = (config: EnvironmentService): TypeOrmModuleOptions => ({
   type: 'postgres',
@@ -16,11 +15,6 @@ export const getTypeOrmModuleOptions = (config: EnvironmentService): TypeOrmModu
   entities: [ProfileModel],
   synchronize: config.getDatabaseSync(),
   schema: config.getDatabaseSchema(),
-  migrationsRun: true,
-  migrations: typeOrmMigrations,
-  // ssl: {
-  //   rejectUnauthorized: false,
-  // },
 })
 
 @Module({
