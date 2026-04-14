@@ -17,7 +17,7 @@ services:
       dockerfile: ./Dockerfile
     container_name: app
     depends_on:
-      postgres:
+      database:
         condition: service_healthy
     environment:
       APP_HOST: 0.0.0.0
@@ -36,8 +36,8 @@ services:
       - '${APP_PORT:-8080}:${APP_PORT:-8080}'
     restart: on-failure
 
-  postgres:
-    container_name: postgres
+  database:
+    container_name: database
     environment:
       POSTGRES_DB: ${DATABASE_NAME:-clean-arch}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
@@ -53,7 +53,7 @@ services:
     ports:
       - '${POSTGRES_PORT:-5432}:5432'
     volumes:
-      - db:/var/lib/postgresql/data
+      - db:/var/lib/postgresql
 
 volumes:
   db:
