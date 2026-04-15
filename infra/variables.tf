@@ -16,7 +16,7 @@ variable "project_number" {
 variable "region" {
   type        = string
   description = "Região do Cloud Run e do Serverless NEG."
-  default     = "southamerica-east1"
+  default     = "us-central1"
 }
 
 variable "service_name" {
@@ -44,7 +44,7 @@ variable "domain" {
 variable "cloud_run_max_instances" {
   type        = number
   description = "Máximo de instâncias Cloud Run."
-  default     = 10
+  default     = 2
 }
 
 variable "cloud_run_min_instances" {
