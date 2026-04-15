@@ -1,9 +1,28 @@
-data "google_compute_default_service_account" "cloud_run_runtime" {
+resource "google_service_account" "cloud_run_runtime" {
+  project      = var.project_id
+  account_id   = "${var.service_name}-cloud-run"
+  display_name = "Cloud Run runtime (${var.service_name})"
+  depends_on   = [google_project_service.required]
+}
+
+resource "google_project_iam_member" "cloud_run_runtime_logging" {
   project = var.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.cloud_run_runtime.email}"
+
+  depends_on = [google_service_account.cloud_run_runtime]
+}
+
+resource "google_project_iam_member" "cloud_run_runtime_monitoring" {
+  project = var.project_id
+  role    = "roles/monitoring.metricWriter"
+  member  = "serviceAccount:${google_service_account.cloud_run_runtime.email}"
+
+  depends_on = [google_service_account.cloud_run_runtime]
 }
 
 resource "google_service_account_iam_member" "cicd_act_as_cloud_run_runtime" {
-  service_account_id = data.google_compute_default_service_account.cloud_run_runtime.id
+  service_account_id = google_service_account.cloud_run_runtime.name
   role               = "roles/iam.serviceAccountUser"
   member             = "serviceAccount:${var.cicd_terraform_sa_email}"
 }
@@ -12,11 +31,17 @@ resource "google_cloud_run_v2_service" "app" {
   name     = var.service_name
   location = var.region
 
-  depends_on = [google_project_service.required]
+  depends_on = [
+    google_project_service.required,
+    google_project_iam_member.cloud_run_runtime_logging,
+    google_project_iam_member.cloud_run_runtime_monitoring,
+  ]
 
   ingress = "INGRESS_TRAFFIC_INTERNAL_LOAD_BALANCER"
 
   template {
+    service_account = google_service_account.cloud_run_runtime.email
+
     containers {
       image = var.image
       ports {
