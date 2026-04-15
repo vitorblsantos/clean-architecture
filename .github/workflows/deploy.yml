@@ -15,7 +15,7 @@ jobs:
     env:
       GCP_PROJECT_ID: ${{ vars.TF_GCP_PROJECT_ID }}
       GCR_HOST: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
-      GCR_EMAIL: ${{ vars.TF_CICD_TERRAFORM_SA_EMAIL }}
+      GCR_EMAIL: ${{ vars.GCP_SA_EMAIL }}
       CLOUD_RUN_REGION: ${{ vars.GCP_CLOUD_RUN_REGION }}
       IMAGE_NAME: ${{ vars.GCP_IMAGE_NAME }}
       CLOUD_RUN_SERVICE: ${{ vars.GCP_CLOUD_RUN_SERVICE_NAME }}
