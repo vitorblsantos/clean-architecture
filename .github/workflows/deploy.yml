@@ -1,0 +1,36 @@
+name: CD - Deploy (Development)
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  deploy-development:
+    runs-on: ubuntu-latest
+    environment: development
+    env:
+      APP_PORT: ${{ vars.APP_PORT }}
+      APP_HOST: ${{ vars.APP_HOST }}
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+      DATABASE_SCHEMA: ${{ secrets.DATABASE_SCHEMA }}
+      DATABASE_SYNCHRONIZE: ${{ vars.DATABASE_SYNCHRONIZE }}
+      DATABASE_USER: ${{ secrets.DATABASE_USER }}
+      NODE_ENV: development
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN_SERVICE_ACCOUNT_PACKAGE }}
+      HUBSPOT_ACCOUNT_ID: ${{ secrets.HUBSPOT_ACCOUNT_ID }}
+      HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.15.0'
+          cache: 'yarn'
+
+      - name: Build Docker Image
+        run: docker compose build
