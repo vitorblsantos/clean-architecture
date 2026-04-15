@@ -16,8 +16,9 @@ jobs:
       GCP_PROJECT_ID: ${{ vars.TF_GCP_PROJECT_ID }}
       CLOUDSDK_CORE_PROJECT: ${{ vars.TF_GCP_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT: ${{ vars.TF_GCP_PROJECT_ID }}
-      GCP_REGION: ${{ vars.GCP_REGION || vars.TF_GCP_REGION || 'southamerica-east1' }}
-      AR_REPOSITORY: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY || 'docker' }}
+      CLOUD_RUN_REGION: ${{ vars.GCP_CLOUD_RUN_REGION || 'us-central1' }}
+      GCR_HOST: us.gcr.io
+      IMAGE_NAME: ${{ vars.GCP_IMAGE_NAME || 'app' }}
       CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE_NAME }}
     steps:
       - name: Checkout
@@ -35,12 +36,12 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker "${GCR_HOST}" --quiet
 
       - name: Build and push image
         run: |
-          IMAGE_BASE="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPOSITORY}/app"
+          IMAGE_BASE="${GCR_HOST}/${GCP_PROJECT_ID}/${IMAGE_NAME}"
           IMAGE_REF="${IMAGE_BASE}:${GITHUB_SHA}"
           docker build -t "$IMAGE_REF" -t "${IMAGE_BASE}:latest" -f Dockerfile .
           docker push "$IMAGE_REF"
@@ -80,7 +81,7 @@ jobs:
           PY
           gcloud run services update "$SERVICE" \
             --project="${GCP_PROJECT_ID}" \
-            --region="${GCP_REGION}" \
+            --region="${CLOUD_RUN_REGION}" \
             --image="${IMAGE_REF}" \
             --env-vars-file=/tmp/cloudrun-env.json
           rm -f /tmp/cloudrun-env.json
