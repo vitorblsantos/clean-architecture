@@ -22,7 +22,7 @@ variable "region" {
 variable "service_name" {
   type        = string
   description = "Nome do serviço Cloud Run e prefixo dos recursos de rede."
-  default     = "app"
+  default     = "clean-arch"
 }
 
 variable "container_port" {
