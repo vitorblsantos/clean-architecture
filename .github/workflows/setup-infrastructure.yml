@@ -5,7 +5,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 concurrency:
   group: terraform-${{ github.workflow }}-${{ github.ref }}
@@ -23,9 +22,6 @@ jobs:
   plan:
     runs-on: ubuntu-latest
     environment: development
-    env:
-      GCP_WIF: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER != '' && secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
-      GCP_SA: ${{ secrets.GCP_TERRAFORM_SA != '' && secrets.GCP_TERRAFORM_SA || vars.GCP_TERRAFORM_SA }}
     defaults:
       run:
         working-directory: infra
@@ -39,18 +35,10 @@ jobs:
         with:
           terraform_version: '1.9.0'
 
-      - name: Check GCP auth configuration
-        run: |
-          if [ -z "$GCP_WIF" ] || [ -z "$GCP_SA" ]; then
-            echo "::error::Defina GCP_WORKLOAD_IDENTITY_PROVIDER e GCP_TERRAFORM_SA (Secrets ou Variables no repositório ou no environment deste job)."
-            exit 1
-          fi
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
         with:
-          workload_identity_provider: ${{ env.GCP_WIF }}
-          service_account: ${{ env.GCP_SA }}
+          credentials_json: ${{ secrets.GCP_TERRAFORM_SA }}
 
       - name: Terraform fmt
         run: terraform fmt -check -recursive
