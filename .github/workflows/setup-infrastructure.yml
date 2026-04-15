@@ -1,4 +1,4 @@
-name: Setup Infrastructure
+name: Infra - Setup
 
 on:
   workflow_dispatch:
