@@ -22,17 +22,14 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_TERRAFORM_SA }}
+          project_id: ${{ vars.TF_GCP_PROJECT_ID }}
+
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
-
-      - name: Authenticate service account
-        env:
-          GCP_SA_JSON: ${{ secrets.GCP_TERRAFORM_SA }}
-        run: |
-          printf '%s' "$GCP_SA_JSON" > /tmp/gcloud-sa.json
-          gcloud auth activate-service-account --key-file /tmp/gcloud-sa.json
-          gcloud config set project "$GCP_PROJECT_ID"
-          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcloud-sa.json" >> "$GITHUB_ENV"
 
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker "${GCR_HOST}" --quiet
@@ -63,10 +60,18 @@ jobs:
           HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
         run: |
           SERVICE="${CLOUD_RUN_SERVICE}"
-          export NODE_ENV="${NODE_ENV}"
+          ruby -ryaml -e '
+            keys = %w[
+              APP_PORT APP_HOST DATABASE_HOST DATABASE_NAME DATABASE_PASSWORD
+              DATABASE_PORT DATABASE_SCHEMA DATABASE_SYNCHRONIZE DATABASE_USER
+              NODE_ENV GITHUB_TOKEN HUBSPOT_ACCOUNT_ID HUBSPOT_PERSONAL_ACCESS_KEY
+            ]
+            env = keys.each_with_object({}) { |k, h| h[k] = ENV.fetch(k, "") }
+            File.write("/tmp/cloudrun-env.yaml", YAML.dump(env))
+          '
           gcloud run services update "$SERVICE" \
             --project="${GCP_PROJECT_ID}" \
             --region="${CLOUD_RUN_REGION}" \
             --image="${IMAGE_REF}" \
-            --env-vars-file=/tmp/cloudrun-env.json
-          rm -f /tmp/cloudrun-env.json
+            --env-vars-file=/tmp/cloudrun-env.yaml
+          rm -f /tmp/cloudrun-env.yaml
