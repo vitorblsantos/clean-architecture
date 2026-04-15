@@ -27,7 +27,7 @@ variable "service_name" {
 
 variable "container_port" {
   type        = number
-  description = "Porta exposta pelo container (igual ao PORT da aplicação)."
+  description = "Porta em que o container escuta; o Cloud Run define a variável PORT automaticamente (não pode ser declarada em env)."
   default     = 8080
 }
 

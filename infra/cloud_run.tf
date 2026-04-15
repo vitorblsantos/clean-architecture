@@ -48,11 +48,6 @@ resource "google_cloud_run_v2_service" "app" {
           memory = var.cloud_run_memory
         }
       }
-
-      env {
-        name  = "PORT"
-        value = tostring(var.container_port)
-      }
     }
 
     scaling {
