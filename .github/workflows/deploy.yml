@@ -1,8 +1,8 @@
 name: CD - Deploy (Development)
 on:
   push:
-    tags:
-      - '*'
+    branches:
+      - main
 
 jobs:
   deploy-development:
