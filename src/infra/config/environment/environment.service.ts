@@ -18,7 +18,7 @@ export class EnvironmentService implements AppConfig, DatabaseConfig {
   }
 
   getAppPort(): number {
-    return this.configService.getOrThrow<number>('APP_PORT')
+    return this.configService.getOrThrow<number>('PORT')
   }
 
   getDatabaseHost(): string {
