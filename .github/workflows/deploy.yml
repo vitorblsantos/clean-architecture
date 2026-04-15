@@ -19,7 +19,7 @@ jobs:
       CLOUD_RUN_REGION: ${{ vars.GCP_CLOUD_RUN_REGION }}
       IMAGE_NAME: ${{ vars.GCP_IMAGE_NAME }}
       CLOUD_RUN_SERVICE: ${{ vars.GCP_CLOUD_RUN_SERVICE_NAME }}
-      NODE_ENV: ${{ vars.NODE_ENV }}
+      NODE_ENV: development
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -55,7 +55,7 @@ jobs:
           DATABASE_SCHEMA: ${{ secrets.DATABASE_SCHEMA }}
           DATABASE_SYNCHRONIZE: ${{ vars.DATABASE_SYNCHRONIZE }}
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
-          NODE_ENV: ${{ vars.NODE_ENV }}
+          NODE_ENV: development
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN_SERVICE_ACCOUNT_PACKAGE }}
           HUBSPOT_ACCOUNT_ID: ${{ secrets.HUBSPOT_ACCOUNT_ID }}
           HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
