@@ -14,10 +14,8 @@ jobs:
     environment: development
     env:
       GCP_PROJECT_ID: ${{ vars.TF_GCP_PROJECT_ID }}
-      CLOUDSDK_CORE_PROJECT: ${{ vars.TF_GCP_PROJECT_ID }}
-      GOOGLE_CLOUD_PROJECT: ${{ vars.TF_GCP_PROJECT_ID }}
+      GCR_HOST: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
       CLOUD_RUN_REGION: ${{ vars.GCP_CLOUD_RUN_REGION }}
-      GCR_HOST: us.gcr.io
       IMAGE_NAME: ${{ vars.GCP_IMAGE_NAME }}
       CLOUD_RUN_SERVICE: ${{ vars.GCP_CLOUD_RUN_SERVICE_NAME }}
     steps:
