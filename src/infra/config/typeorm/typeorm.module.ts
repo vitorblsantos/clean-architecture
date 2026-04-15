@@ -15,6 +15,9 @@ export const getTypeOrmModuleOptions = (config: EnvironmentService): TypeOrmModu
   entities: [ProfileModel],
   synchronize: config.getDatabaseSync(),
   schema: config.getDatabaseSchema(),
+  ssl: {
+    rejectUnauthorized: false,
+  },
 })
 
 @Module({

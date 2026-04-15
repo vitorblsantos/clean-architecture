@@ -13,6 +13,9 @@ const config: DataSourceOptions = {
   synchronize: process.env.DATABASE_SYNCHRONIZE === 'true',
   schema: process.env.DATABASE_SCHEMA,
   username: process.env.DATABASE_USER,
+  ssl: {
+    rejectUnauthorized: false,
+  },
 }
 
 export default config
