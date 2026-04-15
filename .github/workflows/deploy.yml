@@ -73,5 +73,6 @@ jobs:
             --project="${GCP_PROJECT_ID}" \
             --region="${CLOUD_RUN_REGION}" \
             --image="${IMAGE_REF}" \
+            --service-account="terraform-cleanarch@vitorblsantos.iam.gserviceaccount.com" \
             --env-vars-file=/tmp/cloudrun-env.yaml
           rm -f /tmp/cloudrun-env.yaml
