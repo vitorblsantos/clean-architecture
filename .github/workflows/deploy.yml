@@ -15,6 +15,7 @@ jobs:
     env:
       GCP_PROJECT_ID: ${{ vars.TF_GCP_PROJECT_ID }}
       GCR_HOST: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
+      GCR_EMAIL: ${{ vars.TF_CICD_TERRAFORM_SA_EMAIL }}
       CLOUD_RUN_REGION: ${{ vars.GCP_CLOUD_RUN_REGION }}
       IMAGE_NAME: ${{ vars.GCP_IMAGE_NAME }}
       CLOUD_RUN_SERVICE: ${{ vars.GCP_CLOUD_RUN_SERVICE_NAME }}
@@ -72,6 +73,6 @@ jobs:
             --project="${GCP_PROJECT_ID}" \
             --region="${CLOUD_RUN_REGION}" \
             --image="${IMAGE_REF}" \
-            --service-account="terraform-cleanarch@vitorblsantos.iam.gserviceaccount.com" \
+            --service-account="${GCR_EMAIL}" \
             --env-vars-file=/tmp/cloudrun-env.yaml
           rm -f /tmp/cloudrun-env.yaml
