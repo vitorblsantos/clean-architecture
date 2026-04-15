@@ -27,7 +27,7 @@ variable "service_name" {
 
 variable "container_port" {
   type        = number
-  description = "Porta exposta pelo container (igual ao APP_PORT da aplicação)."
+  description = "Porta exposta pelo container (igual ao PORT da aplicação)."
   default     = 8080
 }
 

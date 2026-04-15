@@ -33,7 +33,7 @@ services:
     networks:
       - app
     ports:
-      - '${APP_PORT:-8080}:${APP_PORT:-8080}'
+      - '${PORT:-8080}:${PORT:-8080}'
     restart: on-failure
 
   database:
