@@ -50,4 +50,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform plan
-        run: terraform plan -no-color
+        run: terraform plan -no-color -out=tfplan
+
+      - name: Terraform apply
+        run: terraform apply -no-color tfplan
