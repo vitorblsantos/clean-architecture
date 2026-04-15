@@ -1,6 +1,16 @@
 variable "project_id" {
   type        = string
-  description = "ID do projeto GCP (ex: meu-projeto-123)."
+  description = "ID do projeto GCP (Configurações do projeto — não use nome de usuário do GitHub)."
+}
+
+variable "project_number" {
+  type        = string
+  description = "Número do projeto (só dígitos; Configurações do projeto). Usado no principal serverless-robot do load balancer."
+
+  validation {
+    condition     = can(regex("^[0-9]+$", var.project_number))
+    error_message = "project_number deve ser o número do projeto no GCP (apenas dígitos)."
+  }
 }
 
 variable "region" {
