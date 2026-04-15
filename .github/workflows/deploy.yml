@@ -16,8 +16,8 @@ jobs:
       GCP_WIF: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER != '' && secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
       GCP_SA: ${{ secrets.GCP_TERRAFORM_SA != '' && secrets.GCP_TERRAFORM_SA || vars.GCP_TERRAFORM_SA }}
       GCP_PROJECT_ID: ${{ vars.TF_GCP_PROJECT_ID }}
-      GCP_REGION: ${{ vars.GCP_REGION }}
-      AR_REPOSITORY: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
+      GCP_REGION: ${{ vars.GCP_REGION || vars.TF_GCP_REGION || 'southamerica-east1' }}
+      AR_REPOSITORY: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY || 'docker' }}
       CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE_NAME }}
     steps:
       - name: Checkout
@@ -25,9 +25,7 @@ jobs:
 
       - name: Check GCP deploy configuration
         run: |
-          test -n "$GCP_PROJECT_ID" || { echo "::error::Defina a variable TF_GCP_PROJECT_ID"; exit 1; }
-          test -n "$GCP_REGION" || { echo "::error::Defina a variable GCP_REGION (ex: southamerica-east1)"; exit 1; }
-          test -n "$AR_REPOSITORY" || { echo "::error::Defina GCP_ARTIFACT_REGISTRY_REPOSITORY (nome do repositório Docker no Artifact Registry)"; exit 1; }
+          test -n "$GCP_PROJECT_ID" || { echo "::error::Defina a repository variable TF_GCP_PROJECT_ID"; exit 1; }
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
@@ -68,7 +66,7 @@ jobs:
           HUBSPOT_ACCOUNT_ID: ${{ secrets.HUBSPOT_ACCOUNT_ID }}
           HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
         run: |
-          SERVICE="${CLOUD_RUN_SERVICE:-clean-arch}"
+          SERVICE="${CLOUD_RUN_SERVICE:-app}"
           export NODE_ENV="${NODE_ENV:-development}"
           PORT_VAL="${APP_PORT:-8080}"
           python3 << 'PY'
