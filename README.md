@@ -52,7 +52,7 @@ docker compose up
 | Variável               | Default      | Descrição             |
 | ---------------------- | ------------ | --------------------- |
 | `APP_HOST`             | `localhost`  | Host da aplicação     |
-| `PORT`             | `8080`       | Porta da aplicação    |
+| `PORT`                 | `8080`       | Porta da aplicação    |
 | `DATABASE_HOST`        | `localhost`  | Host do PostgreSQL    |
 | `DATABASE_PORT`        | `5432`       | Porta do PostgreSQL   |
 | `DATABASE_USER`        | `postgres`   | Usuário do banco      |
