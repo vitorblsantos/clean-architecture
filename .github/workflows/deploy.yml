@@ -22,13 +22,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v3
-        with:
-          credentials_json: ${{ secrets.GCP_TERRAFORM_SA }}
-
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+
+      - name: Authenticate service account
+        env:
+          GCP_SA_JSON: ${{ secrets.GCP_TERRAFORM_SA }}
+        run: |
+          printf '%s' "$GCP_SA_JSON" > /tmp/gcloud-sa.json
+          gcloud auth activate-service-account --key-file /tmp/gcloud-sa.json
+          gcloud config set project "$GCP_PROJECT_ID"
+          echo "GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcloud-sa.json" >> "$GITHUB_ENV"
 
       - name: Configure Docker for GCR
         run: gcloud auth configure-docker "${GCR_HOST}" --quiet
