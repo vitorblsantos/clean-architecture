@@ -1,3 +1,13 @@
+data "google_compute_default_service_account" "cloud_run_runtime" {
+  project = var.project_id
+}
+
+resource "google_service_account_iam_member" "cicd_act_as_cloud_run_runtime" {
+  service_account_id = data.google_compute_default_service_account.cloud_run_runtime.id
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${var.cicd_terraform_sa_email}"
+}
+
 resource "google_cloud_run_v2_service" "app" {
   name     = var.service_name
   location = var.region
