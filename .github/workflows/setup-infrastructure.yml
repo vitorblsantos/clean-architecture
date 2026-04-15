@@ -17,6 +17,7 @@ env:
   TF_VAR_project_number: ${{ vars.TF_GCP_PROJECT_NUMBER }}
   TF_VAR_image: ${{ vars.TF_CONTAINER_IMAGE }}
   TF_VAR_domain: ${{ vars.TF_DOMAIN }}
+  TF_VAR_cicd_terraform_sa_email: ${{ vars.TF_CICD_TERRAFORM_SA_EMAIL }}
 
 jobs:
   plan:
