@@ -4,33 +4,89 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   deploy-development:
     runs-on: ubuntu-latest
     environment: development
     env:
-      APP_PORT: ${{ vars.APP_PORT }}
-      APP_HOST: ${{ vars.APP_HOST }}
-      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
-      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-      DATABASE_SCHEMA: ${{ secrets.DATABASE_SCHEMA }}
-      DATABASE_SYNCHRONIZE: ${{ vars.DATABASE_SYNCHRONIZE }}
-      DATABASE_USER: ${{ secrets.DATABASE_USER }}
-      NODE_ENV: development
-      GITHUB_TOKEN: ${{ secrets.GH_TOKEN_SERVICE_ACCOUNT_PACKAGE }}
-      HUBSPOT_ACCOUNT_ID: ${{ secrets.HUBSPOT_ACCOUNT_ID }}
-      HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
+      GCP_WIF: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER != '' && secrets.GCP_WORKLOAD_IDENTITY_PROVIDER || vars.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+      GCP_SA: ${{ secrets.GCP_TERRAFORM_SA != '' && secrets.GCP_TERRAFORM_SA || vars.GCP_TERRAFORM_SA }}
+      GCP_PROJECT_ID: ${{ vars.TF_GCP_PROJECT_ID }}
+      GCP_REGION: ${{ vars.GCP_REGION }}
+      AR_REPOSITORY: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
+      CLOUD_RUN_SERVICE: ${{ vars.CLOUD_RUN_SERVICE_NAME }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: '22.15.0'
-          cache: 'yarn'
+      - name: Check GCP deploy configuration
+        run: |
+          test -n "$GCP_PROJECT_ID" || { echo "::error::Defina a variable TF_GCP_PROJECT_ID"; exit 1; }
+          test -n "$GCP_REGION" || { echo "::error::Defina a variable GCP_REGION (ex: southamerica-east1)"; exit 1; }
+          test -n "$AR_REPOSITORY" || { echo "::error::Defina GCP_ARTIFACT_REGISTRY_REPOSITORY (nome do repositório Docker no Artifact Registry)"; exit 1; }
 
-      - name: Build Docker Image
-        run: docker compose build
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.GCP_WIF }}
+          service_account: ${{ env.GCP_SA }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ vars.TF_GCP_PROJECT_ID }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker "${GCP_REGION}-docker.pkg.dev" --quiet
+
+      - name: Build and push image
+        run: |
+          IMAGE_BASE="${GCP_REGION}-docker.pkg.dev/${GCP_PROJECT_ID}/${AR_REPOSITORY}/app"
+          IMAGE_REF="${IMAGE_BASE}:${GITHUB_SHA}"
+          docker build -t "$IMAGE_REF" -t "${IMAGE_BASE}:latest" -f Dockerfile .
+          docker push "$IMAGE_REF"
+          docker push "${IMAGE_BASE}:latest"
+          echo "IMAGE_REF=${IMAGE_REF}" >> "$GITHUB_ENV"
+
+      - name: Deploy to Cloud Run
+        env:
+          APP_PORT: ${{ vars.APP_PORT }}
+          APP_HOST: ${{ vars.APP_HOST }}
+          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+          DATABASE_SCHEMA: ${{ secrets.DATABASE_SCHEMA }}
+          DATABASE_SYNCHRONIZE: ${{ vars.DATABASE_SYNCHRONIZE }}
+          DATABASE_USER: ${{ secrets.DATABASE_USER }}
+          NODE_ENV: ${{ vars.NODE_ENV }}
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_SERVICE_ACCOUNT_PACKAGE }}
+          HUBSPOT_ACCOUNT_ID: ${{ secrets.HUBSPOT_ACCOUNT_ID }}
+          HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
+        run: |
+          SERVICE="${CLOUD_RUN_SERVICE:-clean-arch}"
+          export NODE_ENV="${NODE_ENV:-development}"
+          PORT_VAL="${APP_PORT:-8080}"
+          python3 << 'PY'
+          import json, os
+
+          keys = [
+              "APP_PORT", "APP_HOST", "DATABASE_HOST", "DATABASE_NAME", "DATABASE_PASSWORD",
+              "DATABASE_PORT", "DATABASE_SCHEMA", "DATABASE_SYNCHRONIZE", "DATABASE_USER",
+              "NODE_ENV", "GITHUB_TOKEN", "HUBSPOT_ACCOUNT_ID", "HUBSPOT_PERSONAL_ACCESS_KEY",
+          ]
+          data = {k: os.environ.get(k, "") for k in keys}
+          data["PORT"] = os.environ.get("APP_PORT") or os.environ.get("PORT") or "8080"
+          with open("/tmp/cloudrun-env.json", "w", encoding="utf-8") as f:
+              json.dump(data, f, ensure_ascii=False)
+          PY
+          gcloud run services update "$SERVICE" \
+            --project="${GCP_PROJECT_ID}" \
+            --region="${GCP_REGION}" \
+            --image="${IMAGE_REF}" \
+            --env-vars-file=/tmp/cloudrun-env.json
+          rm -f /tmp/cloudrun-env.json
