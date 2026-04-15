@@ -64,8 +64,3 @@ variable "cloud_run_memory" {
   description = "Memória por instância (ex: 512Mi)."
   default     = "512Mi"
 }
-
-variable "cicd_terraform_sa_email" {
-  type        = string
-  description = "E-mail da mesma service account do secret GCP_TERRAFORM_SA (CI/CD). Precisa de roles/iam.serviceAccountUser na conta em que o Cloud Run roda (padrão: Compute default SA) para gcloud run services update/deploy."
-}

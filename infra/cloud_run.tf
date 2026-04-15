@@ -21,12 +21,6 @@ resource "google_project_iam_member" "cloud_run_runtime_monitoring" {
   depends_on = [google_service_account.cloud_run_runtime]
 }
 
-resource "google_service_account_iam_member" "cicd_act_as_cloud_run_runtime" {
-  service_account_id = google_service_account.cloud_run_runtime.name
-  role               = "roles/iam.serviceAccountUser"
-  member             = "serviceAccount:${var.cicd_terraform_sa_email}"
-}
-
 resource "google_cloud_run_v2_service" "app" {
   name     = var.service_name
   location = var.region
