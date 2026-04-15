@@ -16,17 +16,13 @@ jobs:
       GCP_PROJECT_ID: ${{ vars.TF_GCP_PROJECT_ID }}
       CLOUDSDK_CORE_PROJECT: ${{ vars.TF_GCP_PROJECT_ID }}
       GOOGLE_CLOUD_PROJECT: ${{ vars.TF_GCP_PROJECT_ID }}
-      CLOUD_RUN_REGION: ${{ vars.GCP_CLOUD_RUN_REGION || 'us-central1' }}
+      CLOUD_RUN_REGION: ${{ vars.GCP_CLOUD_RUN_REGION }}
       GCR_HOST: us.gcr.io
-      IMAGE_NAME: ${{ vars.GCP_IMAGE_NAME || 'app' }}
+      IMAGE_NAME: ${{ vars.GCP_IMAGE_NAME }}
       CLOUD_RUN_SERVICE: ${{ vars.GCP_CLOUD_RUN_SERVICE_NAME }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
-      - name: Check GCP deploy configuration
-        run: |
-          test -n "$GCP_PROJECT_ID" || { echo "::error::Defina a repository variable TF_GCP_PROJECT_ID"; exit 1; }
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v3
@@ -64,21 +60,8 @@ jobs:
           HUBSPOT_ACCOUNT_ID: ${{ secrets.HUBSPOT_ACCOUNT_ID }}
           HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
         run: |
-          SERVICE="${CLOUD_RUN_SERVICE:-app}"
-          export NODE_ENV="${NODE_ENV:-development}"
-          python3 << 'PY'
-          import json, os
-
-          keys = [
-              "APP_PORT", "APP_HOST", "DATABASE_HOST", "DATABASE_NAME", "DATABASE_PASSWORD",
-              "DATABASE_PORT", "DATABASE_SCHEMA", "DATABASE_SYNCHRONIZE", "DATABASE_USER",
-              "NODE_ENV", "GITHUB_TOKEN", "HUBSPOT_ACCOUNT_ID", "HUBSPOT_PERSONAL_ACCESS_KEY",
-          ]
-          data = {k: os.environ.get(k, "") for k in keys}
-          data["PORT"] = os.environ.get("APP_PORT") or os.environ.get("PORT") or "8080"
-          with open("/tmp/cloudrun-env.json", "w", encoding="utf-8") as f:
-              json.dump(data, f, ensure_ascii=False)
-          PY
+          SERVICE="${CLOUD_RUN_SERVICE}"
+          export NODE_ENV="${NODE_ENV}"
           gcloud run services update "$SERVICE" \
             --project="${GCP_PROJECT_ID}" \
             --region="${CLOUD_RUN_REGION}" \
