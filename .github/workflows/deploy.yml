@@ -56,16 +56,13 @@ jobs:
           DATABASE_SYNCHRONIZE: ${{ vars.DATABASE_SYNCHRONIZE }}
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
           NODE_ENV: development
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_SERVICE_ACCOUNT_PACKAGE }}
-          HUBSPOT_ACCOUNT_ID: ${{ secrets.HUBSPOT_ACCOUNT_ID }}
-          HUBSPOT_PERSONAL_ACCESS_KEY: ${{ secrets.HUBSPOT_PERSONAL_ACCESS_KEY }}
         run: |
           SERVICE="${CLOUD_RUN_SERVICE}"
           ruby -ryaml -e '
             keys = %w[
               APP_HOST DATABASE_HOST DATABASE_NAME DATABASE_PASSWORD
               DATABASE_PORT DATABASE_SCHEMA DATABASE_SYNCHRONIZE DATABASE_USER
-              NODE_ENV GITHUB_TOKEN HUBSPOT_ACCOUNT_ID HUBSPOT_PERSONAL_ACCESS_KEY
+              NODE_ENV
             ]
             env = keys.each_with_object({}) { |k, h| h[k] = ENV.fetch(k, "") }
             File.write("/tmp/cloudrun-env.yaml", YAML.dump(env))
