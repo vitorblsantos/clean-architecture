@@ -5,7 +5,6 @@ import { EEnvironment } from '@domain/interfaces/enums/environment.enum'
 
 const envSchema = z.object({
   APP_HOST: z.string().default('0.0.0.0'),
-  APP_PORT: z.coerce.number().default(8080),
 
   DATABASE_HOST: z.string().default('localhost'),
   DATABASE_NAME: z.string().default('clean-arch'),
@@ -19,6 +18,7 @@ const envSchema = z.object({
   DATABASE_USER: z.string().default('postgres'),
 
   NODE_ENV: z.enum(EEnvironment).default(EEnvironment.Development),
+  PORT: z.coerce.number().default(8080),
 })
 
 export type Env = z.infer<typeof envSchema>

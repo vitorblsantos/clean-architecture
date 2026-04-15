@@ -45,7 +45,6 @@ jobs:
 
       - name: Deploy to Cloud Run
         env:
-          APP_PORT: ${{ vars.APP_PORT }}
           APP_HOST: ${{ vars.APP_HOST }}
           DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
           DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
@@ -62,7 +61,7 @@ jobs:
           SERVICE="${CLOUD_RUN_SERVICE}"
           ruby -ryaml -e '
             keys = %w[
-              APP_PORT APP_HOST DATABASE_HOST DATABASE_NAME DATABASE_PASSWORD
+              APP_HOST DATABASE_HOST DATABASE_NAME DATABASE_PASSWORD
               DATABASE_PORT DATABASE_SCHEMA DATABASE_SYNCHRONIZE DATABASE_USER
               NODE_ENV GITHUB_TOKEN HUBSPOT_ACCOUNT_ID HUBSPOT_PERSONAL_ACCESS_KEY
             ]
