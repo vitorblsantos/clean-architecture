@@ -8,7 +8,7 @@ export class UpdateProfileHandler implements ICommandHandler<UpdateProfileComman
   constructor(private readonly profileService: ProfileService) {}
 
   async execute(command: UpdateProfileCommand): Promise<void> {
-    const { id, name, lastname } = command
-    await this.profileService.update({ id, name, lastname })
+    const { id, payload } = command
+    await this.profileService.update({ id, ...payload })
   }
 }
