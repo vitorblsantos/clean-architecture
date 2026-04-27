@@ -42,7 +42,7 @@ export class ProfileService implements IProfileService {
 
     const url = this.config.getOrThrow<string>('GCP_PROFILE_UPDATE_TASK_URL')
     await this.tasks.enqueueHttpTask({
-      method: protos.google.cloud.tasks.v2.HttpMethod.POST,
+      method: protos.google.cloud.tasks.v2.HttpMethod.PUT,
       url,
       body: { id, name, lastname, updatedAt: new Date() },
     })
