@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 
-import { CreateProfileCommand } from '@app/profile/command/create-profile.command'
+import { CreateProfileCommand } from '@app/profile/command/create.command'
 import { ProfileService } from '@app/services/profile/profile.service'
 import { ProfileEntity } from '@domain/entities/profile.entity'
 
