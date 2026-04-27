@@ -44,45 +44,25 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
 
-      - name: Configure Docker for GCR
-        run: gcloud auth configure-docker "${GCR_HOST}" --quiet
-
       - name: Build and push image
         run: |
-          IMAGE_BASE="${GCR_HOST}/${GCP_PROJECT_ID}/${IMAGE_NAME}"
-          IMAGE_REF="${IMAGE_BASE}:${GITHUB_SHA}"
-          docker build -t "$IMAGE_REF" -t "${IMAGE_BASE}:latest" -f Dockerfile .
+          gcloud auth configure-docker "$GCR_HOST" --quiet
+          export IMAGE_REF="$GCR_HOST/$GCP_PROJECT_ID/$IMAGE_NAME:$GITHUB_SHA"
+          docker build -t "$IMAGE_REF" -f Dockerfile .
           docker push "$IMAGE_REF"
-          docker push "${IMAGE_BASE}:latest"
-          echo "IMAGE_REF=${IMAGE_REF}" >> "$GITHUB_ENV"
+          echo "IMAGE_REF=$IMAGE_REF" >> "$GITHUB_ENV"
 
       - name: Deploy to Cloud Run
-        env:
-          APP_HOST: ${{ env.APP_HOST }}
-          DATABASE_HOST: ${{ env.DATABASE_HOST }}
-          DATABASE_NAME: ${{ env.DATABASE_NAME }}
-          DATABASE_PASSWORD: ${{ env.DATABASE_PASSWORD }}
-          DATABASE_PORT: ${{ env.DATABASE_PORT }}
-          DATABASE_SCHEMA: ${{ env.DATABASE_SCHEMA }}
-          DATABASE_SYNCHRONIZE: ${{ env.DATABASE_SYNCHRONIZE }}
-          DATABASE_USER: ${{ env.DATABASE_USER }}
-          GCP_PROFILE_UPDATE_QUEUE: ${{ env.GCP_PROFILE_UPDATE_QUEUE }}
-          GCP_PROFILE_UPDATE_TASK_URL: ${{ env.GCP_PROFILE_UPDATE_TASK_URL }}
-          GCP_PROJECT_ID: ${{ env.GCP_PROJECT_ID }}
-          GCP_TASKS_LOCATION: ${{ env.GCP_TASKS_LOCATION }}
-          NODE_ENV: development
-        run: |
-          set -eo pipefail
-          SERVICE="${CLOUD_RUN_SERVICE}"
-          ENV_FILE="$(mktemp)"
-          trap 'rm -f "$ENV_FILE"' EXIT
+        run: |-
+          gcloud run deploy "$CLOUD_RUN_SERVICE" \
+            --image "$IMAGE_REF" \
+            --region "$CLOUD_RUN_REGION" \
+            --service-account "$GCR_EMAIL" \
+            --platform managed \
+            --set-env-vars="^|^APP_HOST=$APP_HOST|DATABASE_HOST=$DATABASE_HOST|DATABASE_NAME=$DATABASE_NAME|DATABASE_PASSWORD=$DATABASE_PASSWORD|DATABASE_PORT=$DATABASE_PORT|DATABASE_SCHEMA=$DATABASE_SCHEMA|DATABASE_SYNCHRONIZE=$DATABASE_SYNCHRONIZE|DATABASE_USER=$DATABASE_USER|GCP_PROFILE_UPDATE_QUEUE=$GCP_PROFILE_UPDATE_QUEUE|GCP_PROFILE_UPDATE_TASK_URL=$GCP_PROFILE_UPDATE_TASK_URL|GCP_PROJECT_ID=$GCP_PROJECT_ID|GCP_TASKS_LOCATION=$GCP_TASKS_LOCATION|NODE_ENV=$NODE_ENV"
 
-          # --env-vars-file exige YAML/JSON (mapa), não .env; json.dump produz o objeto que o gcloud aceita
-          python3 -c "import json,os,sys; p=sys.argv[1]; K='APP_HOST DATABASE_HOST DATABASE_NAME DATABASE_PASSWORD DATABASE_PORT DATABASE_SCHEMA DATABASE_SYNCHRONIZE DATABASE_USER NODE_ENV'.split(); f=open(p, 'w', encoding='utf-8'); json.dump({k: os.environ.get(k, '') for k in K}, f, ensure_ascii=False, separators=(',', ':')); f.close()" "$ENV_FILE"
-
-          gcloud run services update "$SERVICE" \
-            --project="${GCP_PROJECT_ID}" \
-            --region="${CLOUD_RUN_REGION}" \
-            --image="${IMAGE_REF}" \
-            --service-account="${GCR_EMAIL}" \
-            --env-vars-file="$ENV_FILE"
+      - name: Route traffic to latest revision
+        run: |-
+          gcloud run services update-traffic "$CLOUD_RUN_SERVICE" \
+            --region "$CLOUD_RUN_REGION" \
+            --to-latest
