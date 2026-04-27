@@ -17,6 +17,11 @@ const envSchema = z.object({
     .transform((val) => val === 'true'),
   DATABASE_USER: z.string().default('postgres'),
 
+  GCP_PROJECT_ID: z.string().min(1),
+  GCP_TASKS_LOCATION: z.string().min(1).default('us-central1'),
+  GCP_PROFILE_UPDATE_QUEUE: z.string().min(1).default('profile-update'),
+  GCP_PROFILE_UPDATE_TASK_URL: z.url(),
+
   NODE_ENV: z.enum(EEnvironment).default(EEnvironment.Development),
   PORT: z.coerce.number().default(8080),
 })
