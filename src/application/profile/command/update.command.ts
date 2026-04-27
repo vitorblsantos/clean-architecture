@@ -1,6 +1,6 @@
 import { ProfileEntity } from '@domain/entities/profile.entity'
 
-export class EnqueueProfileUpdateCommand {
+export class UpdateProfileCommand {
   constructor(
     public readonly id: ProfileEntity['id'],
     public readonly name: ProfileEntity['name'] | undefined,
