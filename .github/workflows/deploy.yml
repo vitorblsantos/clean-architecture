@@ -13,7 +13,17 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
     env:
-      GCP_PROJECT_ID: ${{ vars.TF_GCP_PROJECT_ID }}
+      APP_HOST: ${{ vars.APP_HOST }}
+      DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+      DATABASE_SCHEMA: ${{ secrets.DATABASE_SCHEMA }}
+      DATABASE_SYNCHRONIZE: ${{ vars.DATABASE_SYNCHRONIZE }}
+      DATABASE_USER: ${{ secrets.DATABASE_USER }}
+      GCP_PROFILE_UPDATE_QUEUE: ${{ vars.GCP_PROFILE_UPDATE_QUEUE }}
+      GCP_PROFILE_UPDATE_TASK_URL: ${{ vars.GCP_PROFILE_UPDATE_TASK_URL }}
+      GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
       GCR_HOST: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
       GCR_EMAIL: ${{ vars.GCP_SA_EMAIL }}
       CLOUD_RUN_REGION: ${{ vars.GCP_CLOUD_RUN_REGION }}
@@ -47,18 +57,18 @@ jobs:
 
       - name: Deploy to Cloud Run
         env:
-          APP_HOST: ${{ vars.APP_HOST }}
-          DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
-          DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
-          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-          DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
-          DATABASE_SCHEMA: ${{ secrets.DATABASE_SCHEMA }}
-          DATABASE_SYNCHRONIZE: ${{ vars.DATABASE_SYNCHRONIZE }}
-          DATABASE_USER: ${{ secrets.DATABASE_USER }}
-          GCP_PROFILE_UPDATE_QUEUE: ${{ vars.GCP_PROFILE_UPDATE_QUEUE }}
-          GCP_PROFILE_UPDATE_TASK_URL: ${{ vars.GCP_PROFILE_UPDATE_TASK_URL }}
-          GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-          GCP_TASKS_LOCATION: ${{ vars.GCP_TASKS_LOCATION }}
+          APP_HOST: ${APP_HOST}
+          DATABASE_HOST: ${DATABASE_HOST}
+          DATABASE_NAME: ${DATABASE_NAME}
+          DATABASE_PASSWORD: ${DATABASE_PASSWORD}
+          DATABASE_PORT: ${DATABASE_PORT}
+          DATABASE_SCHEMA: ${DATABASE_SCHEMA}
+          DATABASE_SYNCHRONIZE: ${DATABASE_SYNCHRONIZE}
+          DATABASE_USER: ${DATABASE_USER}
+          GCP_PROFILE_UPDATE_QUEUE: ${GCP_PROFILE_UPDATE_QUEUE}
+          GCP_PROFILE_UPDATE_TASK_URL: ${GCP_PROFILE_UPDATE_TASK_URL}
+          GCP_PROJECT_ID: ${GCP_PROJECT_ID}
+          GCP_TASKS_LOCATION: ${GCP_TASKS_LOCATION}
           NODE_ENV: development
         run: |
           SERVICE="${CLOUD_RUN_SERVICE}"
