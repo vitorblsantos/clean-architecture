@@ -75,6 +75,6 @@ export class ProfileController {
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.ACCEPTED)
   async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: ProfileDto): Promise<ProfileEntity> {
-    return await this.commandBus.execute(new UpdateProfileCommand(id, body.name, body.lastname))
+    return await this.commandBus.execute(new UpdateProfileCommand(id, body))
   }
 }
