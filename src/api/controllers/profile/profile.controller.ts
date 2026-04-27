@@ -3,8 +3,11 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 
 import { ProfileDto, UpdateProfileDto } from '@api/dto/profile/profile.dto'
-import { CreateProfileCommand } from '@app/profile/command/create-profile.command'
-import { EnqueueProfileUpdateCommand } from '@app/profile/command/update-profile.command'
+
+import { CreateProfileCommand } from '@app/profile/command/create.command'
+import { EnqueueProfileUpdateCommand } from '@app/profile/command/enqueue-update.command'
+import { UpdateProfileCommand } from '@app/profile/command/update.command'
+
 import { GetProfileByIdQuery } from '@app/profile/query/get-profile-by-id.query'
 import { GetProfilesQuery } from '@app/profile/query/get-profiles.query'
 import { ProfileEntity } from '@domain/entities/profile.entity'
@@ -48,7 +51,7 @@ export class ProfileController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.ACCEPTED)
-  async update(@Body() body: UpdateProfileDto): Promise<void> {
+  async enqueue(@Body() body: UpdateProfileDto): Promise<void> {
     return await this.commandBus.execute(new EnqueueProfileUpdateCommand(body.id, body.name, body.lastname))
   }
 
@@ -61,5 +64,17 @@ export class ProfileController {
   @HttpCode(HttpStatus.OK)
   async findById(@Param('id', ParseUUIDPipe) id: string): Promise<ProfileEntity> {
     return await this.queryBus.execute(new GetProfileByIdQuery(id))
+  }
+
+  @Post('/:id/update')
+  @ApiParam({ name: 'id', description: 'Profile id', example: '123e4567-e89b-12d3-a456-426614174000' })
+  @ApiBody({ type: ProfileDto })
+  @ApiOperation({ description: 'Update a profile' })
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Profile updated successfully' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: ProfileDto): Promise<ProfileEntity> {
+    return await this.commandBus.execute(new UpdateProfileCommand(id, body.name, body.lastname))
   }
 }
