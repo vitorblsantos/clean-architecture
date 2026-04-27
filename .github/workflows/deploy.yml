@@ -77,17 +77,8 @@ jobs:
           ENV_FILE="$(mktemp)"
           trap 'rm -f "$ENV_FILE"' EXIT
 
-          {
-            printf 'APP_HOST=%s\n' "$APP_HOST"
-            printf 'DATABASE_HOST=%s\n' "$DATABASE_HOST"
-            printf 'DATABASE_NAME=%s\n' "$DATABASE_NAME"
-            printf 'DATABASE_PASSWORD=%s\n' "$DATABASE_PASSWORD"
-            printf 'DATABASE_PORT=%s\n' "$DATABASE_PORT"
-            printf 'DATABASE_SCHEMA=%s\n' "$DATABASE_SCHEMA"
-            printf 'DATABASE_SYNCHRONIZE=%s\n' "$DATABASE_SYNCHRONIZE"
-            printf 'DATABASE_USER=%s\n' "$DATABASE_USER"
-            printf 'NODE_ENV=%s\n' "$NODE_ENV"
-          } > "$ENV_FILE"
+          # --env-vars-file exige YAML/JSON (mapa), não .env; json.dump produz o objeto que o gcloud aceita
+          python3 -c "import json,os,sys; p=sys.argv[1]; K='APP_HOST DATABASE_HOST DATABASE_NAME DATABASE_PASSWORD DATABASE_PORT DATABASE_SCHEMA DATABASE_SYNCHRONIZE DATABASE_USER NODE_ENV'.split(); f=open(p, 'w', encoding='utf-8'); json.dump({k: os.environ.get(k, '') for k in K}, f, ensure_ascii=False, separators=(',', ':')); f.close()" "$ENV_FILE"
 
           gcloud run services update "$SERVICE" \
             --project="${GCP_PROJECT_ID}" \
