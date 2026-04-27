@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 
-import { EnqueueProfileUpdateCommand } from '@app/profile/command/update-profile.command'
+import { EnqueueProfileUpdateCommand } from '@app/profile/command/enqueue-update.command'
 import { ProfileService } from '@app/services/profile/profile.service'
 
 @CommandHandler(EnqueueProfileUpdateCommand)
