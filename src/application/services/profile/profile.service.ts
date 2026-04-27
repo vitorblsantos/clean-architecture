@@ -41,7 +41,7 @@ export class ProfileService implements IProfileService {
     const url = this.config.getOrThrow<string>('GCP_PROFILE_UPDATE_TASK_URL')
     await this.tasks.enqueueHttpTask({
       url,
-      body: { id, name, lastname },
+      body: { id, name, lastname, updatedAt: new Date() },
     })
   }
 
@@ -56,7 +56,9 @@ export class ProfileService implements IProfileService {
     return await this.profileRepository.findById(id)
   }
 
-  async update(id: string, payload: Partial<ProfileEntity>): Promise<ProfileEntity> {
-    return await this.profileRepository.update(id, payload)
+  async update(payload: Partial<ProfileEntity>): Promise<ProfileEntity> {
+    const { id, ...data } = payload
+    if (!id) throw new BadRequestException('id is required')
+    return await this.profileRepository.update(id, data)
   }
 }

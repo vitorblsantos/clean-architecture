@@ -30,9 +30,8 @@ export class ProfileRepository implements IProfileRepository {
     return profile
   }
 
-  async update(id: string, profile: Partial<ProfileEntity>): Promise<ProfileEntity> {
-    await this.profileRepository.update(id, { ...profile, updatedAt: new Date() })
-
+  async update(id: string, payload: Partial<Omit<ProfileEntity, 'id'>>): Promise<ProfileEntity> {
+    await this.profileRepository.update({ id }, payload)
     return await this.findById(id)
   }
 }

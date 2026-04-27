@@ -5,5 +5,5 @@ export interface IProfileService {
   enqueue(payload: Partial<ProfileEntity>): Promise<void>
   findAll(): Promise<ProfileEntity[]>
   findById(id: string): Promise<ProfileEntity>
-  update(id: string, payload: Partial<ProfileEntity>): Promise<ProfileEntity>
+  update(payload: Partial<ProfileEntity>): Promise<ProfileEntity>
 }
