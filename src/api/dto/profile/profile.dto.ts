@@ -14,11 +14,6 @@ export class ProfileDto {
 }
 
 export class UpdateProfileDto {
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
-  readonly id!: string
-
   @ApiPropertyOptional({ default: 'John' })
   @IsOptional()
   @IsString()

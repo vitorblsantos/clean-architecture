@@ -44,17 +44,6 @@ export class ProfileController {
     return await this.commandBus.execute(new CreateProfileCommand(body.name, body.lastname))
   }
 
-  @Put('/')
-  @ApiBody({ type: UpdateProfileDto })
-  @ApiOperation({ description: 'Update a profile' })
-  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Profile updated successfully' })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
-  @HttpCode(HttpStatus.ACCEPTED)
-  async enqueue(@Body() body: UpdateProfileDto): Promise<void> {
-    return await this.commandBus.execute(new EnqueueProfileUpdateCommand(body.id, body.name, body.lastname))
-  }
-
   @Get('/:id')
   @ApiParam({ name: 'id', description: 'Profile id', example: '123e4567-e89b-12d3-a456-426614174000' })
   @ApiOperation({ description: 'Get a profile by id' })
@@ -66,15 +55,27 @@ export class ProfileController {
     return await this.queryBus.execute(new GetProfileByIdQuery(id))
   }
 
-  @Post('/:id/update')
+  @Put('/:id')
   @ApiParam({ name: 'id', description: 'Profile id', example: '123e4567-e89b-12d3-a456-426614174000' })
-  @ApiBody({ type: ProfileDto })
+  @ApiBody({ type: UpdateProfileDto })
   @ApiOperation({ description: 'Update a profile' })
   @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Profile updated successfully' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.ACCEPTED)
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: ProfileDto): Promise<ProfileEntity> {
+  async enqueue(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateProfileDto): Promise<void> {
+    return await this.commandBus.execute(new EnqueueProfileUpdateCommand(id, body.name, body.lastname))
+  }
+
+  @Post('/:id/update')
+  @ApiParam({ name: 'id', description: 'Profile id', example: '123e4567-e89b-12d3-a456-426614174000' })
+  @ApiBody({ type: UpdateProfileDto })
+  @ApiOperation({ description: 'Update a profile' })
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Profile updated successfully' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateProfileDto): Promise<ProfileEntity> {
     return await this.commandBus.execute(new UpdateProfileCommand(id, body))
   }
 }
