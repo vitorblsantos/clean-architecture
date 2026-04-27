@@ -75,6 +75,9 @@ jobs:
             --region "$CLOUD_RUN_REGION" \
             --service-account "$GCR_EMAIL" \
             --platform managed \
+            --network "default" \
+            --subnet "default" \
+            --vpc-egress "private-ranges-only" \
             --env-vars-file=/tmp/env.json
 
       - name: Route traffic to latest revision
