@@ -1,6 +1,6 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common'
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
-import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
+import { ApiBody, ApiExcludeEndpoint, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 
 import { ProfileDto, UpdateProfileDto } from '@api/dto/profile/profile.dto'
 
@@ -68,12 +68,7 @@ export class ProfileController {
   }
 
   @Post('/:id/update')
-  @ApiParam({ name: 'id', description: 'Profile id', example: '123e4567-e89b-12d3-a456-426614174000' })
-  @ApiBody({ type: UpdateProfileDto })
-  @ApiOperation({ description: 'Update a profile' })
-  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Profile updated successfully' })
-  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
-  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
+  @ApiExcludeEndpoint()
   @HttpCode(HttpStatus.ACCEPTED)
   async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateProfileDto): Promise<ProfileEntity> {
     return await this.commandBus.execute(new UpdateProfileCommand(id, body))
