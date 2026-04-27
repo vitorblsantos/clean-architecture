@@ -55,11 +55,11 @@ jobs:
           DATABASE_SCHEMA: ${{ secrets.DATABASE_SCHEMA }}
           DATABASE_SYNCHRONIZE: ${{ vars.DATABASE_SYNCHRONIZE }}
           DATABASE_USER: ${{ secrets.DATABASE_USER }}
-          GCP_PROFILE_UPDATE_QUEUE : ${{ vars.GCP_PROFILE_UPDATE_QUEUE }}
-          GCP_PROFILE_UPDATE_TASK_URL : ${{ vars.GCP_PROFILE_UPDATE_TASK_URL }}
+          GCP_PROFILE_UPDATE_QUEUE: ${{ vars.GCP_PROFILE_UPDATE_QUEUE }}
+          GCP_PROFILE_UPDATE_TASK_URL: ${{ vars.GCP_PROFILE_UPDATE_TASK_URL }}
           GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
           GCP_TASKS_LOCATION: ${{ vars.GCP_TASKS_LOCATION }}
-          NODE_ENV: production
+          NODE_ENV: development
         run: |
           SERVICE="${CLOUD_RUN_SERVICE}"
           ruby -ryaml -e '
