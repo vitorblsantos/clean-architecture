@@ -24,6 +24,7 @@ jobs:
       GCP_PROFILE_UPDATE_QUEUE: ${{ vars.GCP_PROFILE_UPDATE_QUEUE }}
       GCP_PROFILE_UPDATE_TASK_URL: ${{ vars.GCP_PROFILE_UPDATE_TASK_URL }}
       GCP_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+      GCP_TASKS_LOCATION: ${{ vars.GCP_TASKS_LOCATION }}
       GCR_HOST: ${{ vars.GCP_ARTIFACT_REGISTRY_REPOSITORY }}
       GCR_EMAIL: ${{ vars.GCP_SA_EMAIL }}
       CLOUD_RUN_REGION: ${{ vars.GCP_CLOUD_RUN_REGION }}
@@ -35,10 +36,10 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v2
+        uses: google-github-actions/auth@v3
         with:
           credentials_json: ${{ secrets.GCP_TERRAFORM_SA }}
-          project_id: ${{ vars.TF_GCP_PROJECT_ID }}
+          project_id: ${{ vars.GCP_PROJECT_ID }}
 
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
@@ -57,34 +58,40 @@ jobs:
 
       - name: Deploy to Cloud Run
         env:
-          APP_HOST: ${APP_HOST}
-          DATABASE_HOST: ${DATABASE_HOST}
-          DATABASE_NAME: ${DATABASE_NAME}
-          DATABASE_PASSWORD: ${DATABASE_PASSWORD}
-          DATABASE_PORT: ${DATABASE_PORT}
-          DATABASE_SCHEMA: ${DATABASE_SCHEMA}
-          DATABASE_SYNCHRONIZE: ${DATABASE_SYNCHRONIZE}
-          DATABASE_USER: ${DATABASE_USER}
-          GCP_PROFILE_UPDATE_QUEUE: ${GCP_PROFILE_UPDATE_QUEUE}
-          GCP_PROFILE_UPDATE_TASK_URL: ${GCP_PROFILE_UPDATE_TASK_URL}
-          GCP_PROJECT_ID: ${GCP_PROJECT_ID}
-          GCP_TASKS_LOCATION: ${GCP_TASKS_LOCATION}
+          APP_HOST: ${{ env.APP_HOST }}
+          DATABASE_HOST: ${{ env.DATABASE_HOST }}
+          DATABASE_NAME: ${{ env.DATABASE_NAME }}
+          DATABASE_PASSWORD: ${{ env.DATABASE_PASSWORD }}
+          DATABASE_PORT: ${{ env.DATABASE_PORT }}
+          DATABASE_SCHEMA: ${{ env.DATABASE_SCHEMA }}
+          DATABASE_SYNCHRONIZE: ${{ env.DATABASE_SYNCHRONIZE }}
+          DATABASE_USER: ${{ env.DATABASE_USER }}
+          GCP_PROFILE_UPDATE_QUEUE: ${{ env.GCP_PROFILE_UPDATE_QUEUE }}
+          GCP_PROFILE_UPDATE_TASK_URL: ${{ env.GCP_PROFILE_UPDATE_TASK_URL }}
+          GCP_PROJECT_ID: ${{ env.GCP_PROJECT_ID }}
+          GCP_TASKS_LOCATION: ${{ env.GCP_TASKS_LOCATION }}
           NODE_ENV: development
         run: |
+          set -eo pipefail
           SERVICE="${CLOUD_RUN_SERVICE}"
-          ruby -ryaml -e '
-            keys = %w[
-              APP_HOST DATABASE_HOST DATABASE_NAME DATABASE_PASSWORD
-              DATABASE_PORT DATABASE_SCHEMA DATABASE_SYNCHRONIZE DATABASE_USER
-              NODE_ENV
-            ]
-            env = keys.each_with_object({}) { |k, h| h[k] = ENV.fetch(k, "") }
-            File.write("/tmp/cloudrun-env.yaml", YAML.dump(env))
-          '
+          ENV_FILE="$(mktemp)"
+          trap 'rm -f "$ENV_FILE"' EXIT
+
+          {
+            printf 'APP_HOST=%s\n' "$APP_HOST"
+            printf 'DATABASE_HOST=%s\n' "$DATABASE_HOST"
+            printf 'DATABASE_NAME=%s\n' "$DATABASE_NAME"
+            printf 'DATABASE_PASSWORD=%s\n' "$DATABASE_PASSWORD"
+            printf 'DATABASE_PORT=%s\n' "$DATABASE_PORT"
+            printf 'DATABASE_SCHEMA=%s\n' "$DATABASE_SCHEMA"
+            printf 'DATABASE_SYNCHRONIZE=%s\n' "$DATABASE_SYNCHRONIZE"
+            printf 'DATABASE_USER=%s\n' "$DATABASE_USER"
+            printf 'NODE_ENV=%s\n' "$NODE_ENV"
+          } > "$ENV_FILE"
+
           gcloud run services update "$SERVICE" \
             --project="${GCP_PROJECT_ID}" \
             --region="${CLOUD_RUN_REGION}" \
             --image="${IMAGE_REF}" \
             --service-account="${GCR_EMAIL}" \
-            --env-vars-file=/tmp/cloudrun-env.yaml
-          rm -f /tmp/cloudrun-env.yaml
+            --env-vars-file="$ENV_FILE"
