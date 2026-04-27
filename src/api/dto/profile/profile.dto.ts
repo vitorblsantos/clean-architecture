@@ -5,15 +5,20 @@ export class ProfileDto {
   @ApiProperty({ required: true, default: 'John' })
   @IsNotEmpty()
   @IsString()
-  readonly name: string
+  readonly name!: string
 
   @ApiProperty({ required: true, default: 'Doe' })
   @IsNotEmpty()
   @IsString()
-  readonly lastname: string
+  readonly lastname!: string
 }
 
 export class UpdateProfileDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  readonly id!: string
+
   @ApiPropertyOptional({ default: 'John' })
   @IsOptional()
   @IsString()
