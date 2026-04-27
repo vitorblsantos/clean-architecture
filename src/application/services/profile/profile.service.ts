@@ -41,7 +41,7 @@ export class ProfileService implements IProfileService {
 
     await this.tasks.enqueueHttpTask({
       url: `${url}/${id}/update`,
-      body: { id, name, lastname, updatedAt: new Date() },
+      body: { name, lastname },
     })
   }
 
@@ -57,8 +57,16 @@ export class ProfileService implements IProfileService {
   }
 
   async update(payload: Partial<ProfileEntity>): Promise<ProfileEntity> {
-    const { id, ...data } = payload
+    const { id, name, lastname } = payload
     if (!id) throw new BadRequestException('id is required')
+    if (!name && !lastname) {
+      throw new BadRequestException('At least one of name or lastname is required to update a profile')
+    }
+
+    const data: Partial<Omit<ProfileEntity, 'id'>> = { updatedAt: new Date() }
+    if (name != null) data.name = name
+    if (lastname != null) data.lastname = lastname
+
     return await this.profileRepository.update(id, data)
   }
 }
