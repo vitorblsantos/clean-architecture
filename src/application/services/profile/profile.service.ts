@@ -32,15 +32,15 @@ export class ProfileService implements IProfileService {
 
   async enqueue(payload: Partial<ProfileEntity>): Promise<void> {
     const { id, name, lastname } = payload
+    const url = this.config.getOrThrow<string>('GCP_PROFILE_UPDATE_TASK_URL')
 
     if (!id) throw new BadRequestException('id is required')
     if (name == null && lastname == null) {
       throw new BadRequestException('At least one of name or lastname is required to update a profile')
     }
 
-    const url = this.config.getOrThrow<string>('GCP_PROFILE_UPDATE_TASK_URL')
     await this.tasks.enqueueHttpTask({
-      url,
+      url: `${url}/${id}/update`,
       body: { id, name, lastname, updatedAt: new Date() },
     })
   }
