@@ -1,6 +1,8 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 
+import { protos } from '@google-cloud/tasks'
+
 import { ProfileEntity } from '@domain/entities/profile.entity'
 import { IProfileRepository } from '@domain/interfaces/repositories/profile-repository.interface'
 import { IProfileService } from '@domain/interfaces/services/profile-service.interfaces'
@@ -40,6 +42,7 @@ export class ProfileService implements IProfileService {
 
     const url = this.config.getOrThrow<string>('GCP_PROFILE_UPDATE_TASK_URL')
     await this.tasks.enqueueHttpTask({
+      method: protos.google.cloud.tasks.v2.HttpMethod.POST,
       url,
       body: { id, name, lastname, updatedAt: new Date() },
     })
