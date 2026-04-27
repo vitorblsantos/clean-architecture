@@ -3,6 +3,7 @@ locals {
     "run.googleapis.com",
     "compute.googleapis.com",
     "iam.googleapis.com",
+    "cloudtasks.googleapis.com",
   ]
 }
 
