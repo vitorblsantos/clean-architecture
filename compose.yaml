@@ -20,15 +20,15 @@ services:
       database:
         condition: service_healthy
     environment:
-      APP_HOST: 0.0.0.0
-      PORT: ${PORT:-8080}
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
       DATABASE_USER: ${DATABASE_USER:-postgres}
       DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
-      DATABASE_NAME: ${DATABASE_DB:-clean-arch}
+      DATABASE_NAME: ${DATABASE_NAME:-clean-arch}
       DATABASE_SCHEMA: ${DATABASE_SCHEMA:-public}
       DATABASE_SYNCHRONIZE: ${DATABASE_SYNC:-true}
+      HOST: ${HOST:-0.0.0.0}
+      PORT: ${PORT:-8080}
     image: app:latest
     networks:
       - app

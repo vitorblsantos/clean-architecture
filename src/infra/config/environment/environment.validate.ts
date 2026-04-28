@@ -4,8 +4,6 @@ import { z } from 'zod'
 import { EEnvironment } from '@domain/interfaces/enums/environment.enum'
 
 const envSchema = z.object({
-  APP_HOST: z.string().default('0.0.0.0'),
-
   DATABASE_HOST: z.string().default('localhost'),
   DATABASE_NAME: z.string().default('clean-arch'),
   DATABASE_PASSWORD: z.string().default('postgres'),
@@ -21,6 +19,8 @@ const envSchema = z.object({
   GCP_TASKS_LOCATION: z.string().min(1).default('us-central1'),
   GCP_PROFILE_UPDATE_QUEUE: z.string().min(1).default('profile-update'),
   GCP_PROFILE_UPDATE_TASK_URL: z.url(),
+
+  HOST: z.string().default('0.0.0.0'),
 
   NODE_ENV: z.enum(EEnvironment).default(EEnvironment.Development),
   PORT: z.coerce.number().default(8080),
