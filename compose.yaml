@@ -1,13 +1,14 @@
 networks:
   app:
     driver: bridge
+    name: clean-arch-app
 
 services:
   adminer:
     image: adminer
     restart: always
     ports:
-      - '8081:8080'
+      - '9091:8080'
     networks:
       - app
 
@@ -17,12 +18,12 @@ services:
       dockerfile: ./Dockerfile
     container_name: app
     depends_on:
-      database:
-        condition: service_healthy
       kafka:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
     environment:
-      APP_HOST: 0.0.0.0
+      HOST: 0.0.0.0
       NODE_ENV: ${NODE_ENV:-local}
       PORT: ${PORT:-8080}
       DATABASE_HOST: postgres
@@ -34,31 +35,12 @@ services:
       DATABASE_SYNCHRONIZE: ${DATABASE_SYNC:-true}
       KAFKA_BROKERS: kafka:9092
       KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID:-clean-arch}
-    image: app:latest
+    image: clean-arch:latest
     networks:
       - app
     ports:
       - '${PORT:-8080}:${PORT:-8080}'
     restart: on-failure
-
-  database:
-    container_name: database
-    environment:
-      POSTGRES_DB: ${DATABASE_NAME:-clean-arch}
-      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
-      POSTGRES_USER: ${DATABASE_USER:-postgres}
-    healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${DATABASE_USER:-postgres}']
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    image: postgres:latest
-    networks:
-      - app
-    ports:
-      - '${POSTGRES_PORT:-5432}:5432'
-    volumes:
-      - db:/var/lib/postgresql
 
   kafka:
     container_name: kafka
@@ -98,6 +80,25 @@ services:
       - app
     ports:
       - '9090:8080'
+
+  postgres:
+    container_name: database
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-clean-arch}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
+      POSTGRES_USER: ${DATABASE_USER:-postgres}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DATABASE_USER:-postgres}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    image: postgres:latest
+    networks:
+      - app
+    ports:
+      - '${POSTGRES_PORT:-5432}:5432'
+    volumes:
+      - db:/var/lib/postgresql
 
   zookeeper:
     container_name: zookeeper
