@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger'
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator'
+import { IsDate, IsNotEmpty, IsOptional, IsString } from 'class-validator'
 
 export class ProfileDto {
   @ApiProperty({ required: true, default: 'John' })
@@ -25,4 +25,10 @@ export class UpdateProfileDto {
   @IsString()
   @IsNotEmpty()
   readonly lastname?: string
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDate()
+  @IsNotEmpty()
+  readonly deletedAt?: Date
 }
