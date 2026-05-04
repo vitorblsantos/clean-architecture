@@ -3,7 +3,7 @@ import { FastifyRequest } from 'fastify'
 import { Observable } from 'rxjs'
 import { tap } from 'rxjs/operators'
 
-import { LoggerService } from 'src/application/services/logger/logger.service'
+import { LoggerService } from '@app/services/logger/logger.service'
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
