@@ -14,7 +14,7 @@ export class EnvironmentService implements AppConfig, DatabaseConfig {
   }
 
   getAppHost(): string {
-    return this.configService.getOrThrow<string>('APP_HOST')
+    return this.configService.getOrThrow<string>('HOST')
   }
 
   getAppPort(): number {
@@ -27,6 +27,10 @@ export class EnvironmentService implements AppConfig, DatabaseConfig {
 
   getDatabasePort(): number {
     return this.configService.getOrThrow<number>('DATABASE_PORT')
+  }
+
+  getDatabaseTimezone(): string {
+    return this.configService.getOrThrow<string>('DATABASE_TIMEZONE')
   }
 
   getDatabaseUser(): string {
