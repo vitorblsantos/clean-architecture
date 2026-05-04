@@ -1,20 +1,20 @@
 import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 
 import { ProfileEntity } from '@domain/entities/profile.entity'
 import { IProfileRepository } from '@domain/interfaces/repositories/profile-repository.interface'
 import { IProfileService } from '@domain/interfaces/services/profile-service.interfaces'
+import { ITasksService } from '@domain/interfaces/services/tasks-service.interface'
 import { ProfileDomainService } from '@domain/services/profile/profile.service'
-import { CloudTasksService } from '@infra/cloud-tasks/cloud-tasks.service'
+import { TASKS_SERVICE } from '@infra/tasks/tasks.module'
 
 @Injectable()
 export class ProfileService implements IProfileService {
   constructor(
-    private readonly config: ConfigService,
     private readonly profileDomainService: ProfileDomainService,
     @Inject('IProfileRepository')
     private readonly profileRepository: IProfileRepository,
-    private readonly tasks: CloudTasksService,
+    @Inject(TASKS_SERVICE)
+    private readonly tasks: ITasksService,
   ) {}
 
   async create(payload: Partial<ProfileEntity>): Promise<ProfileEntity> {
@@ -30,18 +30,21 @@ export class ProfileService implements IProfileService {
     return await this.profileRepository.create(profileEntity)
   }
 
+  async delete(id: string): Promise<void> {
+    await this.profileRepository.update(id, { updatedAt: new Date(), deletedAt: new Date() })
+  }
+
   async enqueue(payload: Partial<ProfileEntity>): Promise<void> {
     const { id, name, lastname } = payload
-    const url = this.config.getOrThrow<string>('GCP_PROFILE_UPDATE_TASK_URL')
 
     if (!id) throw new BadRequestException('id is required')
     if (name == null && lastname == null) {
       throw new BadRequestException('At least one of name or lastname is required to update a profile')
     }
 
-    await this.tasks.enqueueHttpTask({
-      url: `${url}/${id}/update`,
-      body: { name, lastname },
+    await this.tasks.enqueue({
+      topic: 'profile.update',
+      payload: { id, name, lastname },
     })
   }
 

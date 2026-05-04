@@ -1,19 +1,22 @@
-import { Entity, Column, CreateDateColumn, PrimaryColumn, UpdateDateColumn } from 'typeorm'
+import { Entity, Column, CreateDateColumn, PrimaryColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm'
 
 @Entity('profiles')
 export class ProfileModel {
   @PrimaryColumn('varchar')
-  id: string
+  id!: string
 
   @CreateDateColumn()
-  createdAt: Date
+  createdAt!: Date
+
+  @DeleteDateColumn()
+  deletedAt!: Date | null
 
   @Column('varchar')
-  lastname: string
+  lastname!: string
 
   @Column('varchar')
-  name: string
+  name!: string
 
   @UpdateDateColumn()
-  updatedAt: Date
+  updatedAt!: Date
 }

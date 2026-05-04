@@ -14,6 +14,7 @@ export class ProfileDomainService {
 
     const profile: ProfileEntity = {
       id: this.generateProfileId(),
+      deletedAt: null,
       name: profileData.name,
       lastname: profileData.lastname,
       createdAt: new Date(),

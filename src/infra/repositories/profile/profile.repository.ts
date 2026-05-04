@@ -18,6 +18,11 @@ export class ProfileRepository implements IProfileRepository {
     return await this.profileRepository.save(profile)
   }
 
+  async delete(id: string): Promise<void> {
+    await this.profileRepository.update({ id }, { deletedAt: new Date() })
+    return
+  }
+
   async findAll(): Promise<ProfileEntity[]> {
     return await this.profileRepository.find()
   }
