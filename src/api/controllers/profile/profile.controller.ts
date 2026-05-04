@@ -1,10 +1,11 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common'
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put } from '@nestjs/common'
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { ApiBody, ApiExcludeEndpoint, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 
 import { ProfileDto, UpdateProfileDto } from '@api/dto/profile/profile.dto'
 
 import { CreateProfileCommand } from '@app/profile/command/create.command'
+import { DeleteProfileCommand } from '@app/profile/command/delete.command'
 import { EnqueueProfileUpdateCommand } from '@app/profile/command/enqueue-update.command'
 import { UpdateProfileCommand } from '@app/profile/command/update.command'
 
@@ -67,8 +68,21 @@ export class ProfileController {
     return await this.commandBus.execute(new EnqueueProfileUpdateCommand(id, body.name, body.lastname))
   }
 
-  @Post('/:id/update')
+  @Delete('/:id/delete')
   @ApiExcludeEndpoint()
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Profile deleted successfully' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
+  @HttpCode(HttpStatus.ACCEPTED)
+  async delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
+    return await this.commandBus.execute(new DeleteProfileCommand(id))
+  }
+
+  @Put('/:id/update')
+  @ApiExcludeEndpoint()
+  @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Profile updated successfully' })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.ACCEPTED)
   async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateProfileDto): Promise<ProfileEntity> {
     return await this.commandBus.execute(new UpdateProfileCommand(id, body))
