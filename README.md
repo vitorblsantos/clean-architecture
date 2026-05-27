@@ -15,7 +15,7 @@ API com **Clean Architecture** e **CQRS**, com fila de tarefas plugável (Kafka 
 
 ## Estrutura
 
-```
+```text
 src/
 ├── api/            # Controllers, DTOs, validação de entrada, Swagger
 ├── app/            # Módulos de feature, commands, queries, handlers, events, serviços de aplicação,
@@ -169,7 +169,7 @@ Siga a ordem. O exemplo usa o módulo `profile`; em outro contexto, troca o cami
 
 2. **Criar o handler** em `src/app/<feature>/command/handler/<nome>.handler.ts`
    - `@CommandHandler(SeuCommand)` e `implements ICommandHandler<SeuCommand, TResultado>`.
-   - O `execute` delega para o serviço de aplicação / regras já existentes (ex.: `ProfileService`).
+   - O `execute` delega para o serviço de aplicação / regras já existentes (ex.: `ProfilesService`).
 
 3. **Registar o handler** no módulo da feature (ex.: `src/app/<feature>/<feature>.module.ts`):
    - Adiciona a classe ao array `Commands` (ou equivalente) e espalha em `providers`: `...Commands`.
@@ -217,7 +217,7 @@ O projeto segue **Clean Architecture** com **CQRS**. A ideia central é que o **
 
 Em termos de camadas e dependências:
 
-```
+```text
 api / infra  →  app  →  domain
 ```
 
@@ -232,7 +232,7 @@ api / infra  →  app  →  domain
 
 A dependência aponta sempre **para dentro**, em direção ao domínio:
 
-```
+```text
 infra  →  app  →  domain
 api    →  app  →  domain
 ```
@@ -245,21 +245,21 @@ Cada operação de **escrita** é um **Command** (POJO, sem decorators) em `app/
 
 Fluxo típico (HTTP síncrono):
 
-```
+```text
 Controller → CommandBus / QueryBus → Handler (app) → *Service (app) → domain + implementações em infra
 ```
 
 Fluxo típico (assíncrono via fila):
 
-```
-Controller → EnqueueProfileUpdateCommand → Handler → ProfileService.enqueue
+```text
+Controller → EnqueueProfileUpdateCommand → Handler → ProfilesService.enqueue
                                                     └─ ITasksService (Kafka local | Cloud Tasks prod)
                                                                                  │
                                                                                  ▼
                                                        Worker / HTTP callback → PUT /v1/profiles/:id/update
                                                                                  │
                                                                                  ▼
-                                                       UpdateProfileCommand → Handler → ProfileService.update
+                                                       UpdateProfileCommand → Handler → ProfilesService.update
 ```
 
 | Peça                          | Onde fica                                                | Responsabilidade                                                         |
