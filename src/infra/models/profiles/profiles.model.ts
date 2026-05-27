@@ -1,7 +1,7 @@
 import { Entity, Column, CreateDateColumn, PrimaryColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm'
 
 @Entity('profiles')
-export class ProfileModel {
+export class ProfilesModel {
   @PrimaryColumn('varchar')
   id!: string
 
