@@ -1,14 +1,14 @@
 import { Module } from '@nestjs/common'
 import { ConfigModule } from '@nestjs/config'
 
-import { EnvironmentService } from './environment.service'
-import { validate } from './environment.validate'
+import { EnvironmentService } from '@app/services/environment/environment.service'
+import { EnvironmentDomainService } from '@domain/services/environment/environment.service'
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      validate,
+      validate: (config) => new EnvironmentDomainService().validate(config),
     }),
   ],
   providers: [EnvironmentService],
