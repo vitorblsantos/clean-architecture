@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common'
 
-import { ProfileModule } from '@app/profile/profile.module'
+import { ProfileModule } from '@app/profiles/profiles.module'
 
 @Module({
   imports: [ProfileModule],
