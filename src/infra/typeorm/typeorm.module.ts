@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
 
-import { EnvironmentModule } from '@infra/config/environment/environment.module'
-import { EnvironmentService } from '@infra/config/environment/environment.service'
-import { ProfileModel } from '@infra/models/profile/profile.model'
+import { EnvironmentModule } from '@infra/environment/environment.module'
+import { EnvironmentService } from '@app/services/environment/environment.service'
+import { ProfilesModel } from '@infra/models/profiles/profiles.model'
 import { EEnvironment } from '@domain/interfaces/enums/environment.enum'
 import { DataSourceOptions } from 'typeorm'
 
@@ -12,7 +12,7 @@ const typeormConfig = (config: EnvironmentService): TypeOrmModuleOptions => {
 
   let oddConfig: DataSourceOptions = {
     database: config.getDatabaseName(),
-    entities: [ProfileModel],
+    entities: [ProfilesModel],
     extra: {
       options: `-c timezone=${tz}`,
     },
