@@ -1,4 +1,4 @@
-export class ProfileEntity {
+export class ProfilesEntity {
   createdAt!: Date
   deletedAt!: Date | null
   id!: string
