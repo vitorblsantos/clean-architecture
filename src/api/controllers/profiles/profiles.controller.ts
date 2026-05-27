@@ -2,23 +2,23 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPi
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { ApiBody, ApiExcludeEndpoint, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 
-import { ProfileDto, UpdateProfileDto } from '@api/dto/profile/profile.dto'
+import { ProfilesDto, UpdateProfileDto } from '@api/dto/profiles/profiles.dto'
 
-import { CreateProfileCommand } from '@app/profile/command/create.command'
-import { DeleteProfileCommand } from '@app/profile/command/delete.command'
-import { EnqueueProfileUpdateCommand } from '@app/profile/command/enqueue-update.command'
-import { UpdateProfileCommand } from '@app/profile/command/update.command'
+import { CreateProfileCommand } from '@app/profiles/command/create.command'
+import { DeleteProfileCommand } from '@app/profiles/command/delete.command'
+import { EnqueueProfileUpdateCommand } from '@app/profiles/command/enqueue-update.command'
+import { UpdateProfileCommand } from '@app/profiles/command/update.command'
 
-import { GetProfileByIdQuery } from '@app/profile/query/get-profile-by-id.query'
-import { GetProfilesQuery } from '@app/profile/query/get-profiles.query'
-import { ProfileEntity } from '@domain/entities/profile.entity'
+import { GetProfileByIdQuery } from '@app/profiles/query/get-profile-by-id.query'
+import { GetProfilesQuery } from '@app/profiles/query/get-profiles.query'
+import { ProfilesEntity } from '@domain/entities/profiles/profiles.entity'
 
 @ApiTags('Profiles')
 @Controller({
   path: 'profiles',
   version: '1',
 })
-export class ProfileController {
+export class ProfilesController {
   constructor(
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
@@ -30,18 +30,18 @@ export class ProfileController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'No profiles found' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.OK)
-  async findAll(): Promise<ProfileEntity[]> {
+  async findAll(): Promise<ProfilesEntity[]> {
     return await this.queryBus.execute(new GetProfilesQuery())
   }
 
   @Post('/')
-  @ApiBody({ type: ProfileDto })
+  @ApiBody({ type: ProfilesDto })
   @ApiOperation({ description: 'Create a new profile' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Profile created successfully' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() body: ProfileDto): Promise<ProfileEntity> {
+  async create(@Body() body: ProfilesDto): Promise<ProfilesEntity> {
     return await this.commandBus.execute(new CreateProfileCommand(body.name, body.lastname))
   }
 
@@ -52,7 +52,7 @@ export class ProfileController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'No profile found' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.OK)
-  async findById(@Param('id', ParseUUIDPipe) id: string): Promise<ProfileEntity> {
+  async findById(@Param('id', ParseUUIDPipe) id: string): Promise<ProfilesEntity> {
     return await this.queryBus.execute(new GetProfileByIdQuery(id))
   }
 
@@ -69,7 +69,6 @@ export class ProfileController {
   }
 
   @Delete('/:id/delete')
-  @ApiExcludeEndpoint()
   @ApiResponse({ status: HttpStatus.ACCEPTED, description: 'Profile deleted successfully' })
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
@@ -84,7 +83,7 @@ export class ProfileController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.ACCEPTED)
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateProfileDto): Promise<ProfileEntity> {
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateProfileDto): Promise<ProfilesEntity> {
     return await this.commandBus.execute(new UpdateProfileCommand(id, body))
   }
 }
