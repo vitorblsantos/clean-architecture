@@ -19,9 +19,7 @@
       "@domain/*": ["./src/domain/*"],
       "@infra/*": ["./src/infra/*"]
     },
-    "types": ["node", "jest"],
-    "rootDir": "./src",
-    "outDir": "./dist"
+    "types": ["node", "jest"]
   },
   "include": ["./src/**/*.ts"]
 }
