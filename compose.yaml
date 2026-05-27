@@ -1,46 +1,40 @@
 networks:
-  app:
+  clean-arch-network:
     driver: bridge
-    name: clean-arch-app
+    name: clean-arch-network
 
 services:
   adminer:
     image: adminer
-    restart: always
-    ports:
-      - '9091:8080'
     networks:
-      - app
+      - clean-arch-network
+    ports:
+      - '8081:8080'
+    profiles: [dev]
+    restart: always
 
-  app:
+  clean-arch-app:
     build:
       context: .
       dockerfile: ./Dockerfile
-    container_name: app
+    container_name: clean-arch-app
     depends_on:
       kafka:
-        condition: service_healthy
-      postgres:
         condition: service_healthy
     environment:
       HOST: 0.0.0.0
       NODE_ENV: ${NODE_ENV:-local}
       PORT: ${PORT:-8080}
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_USER: ${DATABASE_USER:-postgres}
-      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-postgres}
-      DATABASE_NAME: ${DATABASE_NAME:-clean-arch}
-      DATABASE_SCHEMA: ${DATABASE_SCHEMA:-public}
-      DATABASE_SYNCHRONIZE: ${DATABASE_SYNC:-true}
-      KAFKA_BROKERS: kafka:9092
-      KAFKA_CLIENT_ID: ${KAFKA_CLIENT_ID:-clean-arch}
-    image: clean-arch:latest
+    env_file:
+      - .env
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    image: clean-arch-app:latest
     networks:
-      - app
+      - clean-arch-network
     ports:
       - '${PORT:-8080}:${PORT:-8080}'
-    restart: on-failure
+    restart: unless-stopped
 
   kafka:
     container_name: kafka
@@ -55,7 +49,7 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 3000
     healthcheck:
       test: ['CMD-SHELL', 'kafka-topics --bootstrap-server localhost:9092 --list >/dev/null 2>&1']
       interval: 10s
@@ -63,9 +57,10 @@ services:
       retries: 10
     image: confluentinc/cp-kafka:7.4.4
     networks:
-      - app
+      - clean-arch-network
     ports:
       - '29092:29092'
+    restart: unless-stopped
 
   kafka-ui:
     container_name: kafka-ui
@@ -77,14 +72,15 @@ services:
       KAFKA_CLUSTERS_0_NAME: local
     image: provectuslabs/kafka-ui:latest
     networks:
-      - app
+      - clean-arch-network
     ports:
-      - '9090:8080'
+      - '8082:8080'
+    profiles: [dev]
 
   postgres:
     container_name: database
     environment:
-      POSTGRES_DB: ${DATABASE_NAME:-clean-arch}
+      POSTGRES_DB: ${DATABASE_NAME:-argus}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-postgres}
       POSTGRES_USER: ${DATABASE_USER:-postgres}
     healthcheck:
@@ -92,11 +88,13 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
-    image: postgres:latest
+    image: postgres:16-alpine
     networks:
-      - app
+      - clean-arch-network
     ports:
       - '${POSTGRES_PORT:-5432}:5432'
+    profiles: [dev]
+    restart: unless-stopped
     volumes:
       - db:/var/lib/postgresql
 
@@ -109,8 +107,8 @@ services:
       ZOOKEEPER_TICK_TIME: 2000
     image: confluentinc/cp-zookeeper:7.4.4
     networks:
-      - app
+      - clean-arch-network
+    restart: unless-stopped
 
 volumes:
   db:
-  kafka:
