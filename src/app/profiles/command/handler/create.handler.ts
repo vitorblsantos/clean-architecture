@@ -1,15 +1,16 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 
 import { CreateProfileCommand } from '@app/profiles/command/create.command'
-import { ProfilesService } from '@app/services/profiles/profiles.service'
+
 import { ProfilesEntity } from '@domain/entities/profiles/profiles.entity'
+import { IProfilesService } from '@domain/interfaces/services/profile-service.interface'
 
 @CommandHandler(CreateProfileCommand)
 export class CreateProfileHandler implements ICommandHandler<CreateProfileCommand, ProfilesEntity> {
-  constructor(private readonly ProfilesService: ProfilesService) {}
+  constructor(private readonly profilesService: IProfilesService) {}
 
   async execute(command: CreateProfileCommand): Promise<ProfilesEntity> {
     const { name, lastname } = command
-    return await this.ProfilesService.create({ name, lastname })
+    return await this.profilesService.create({ name, lastname })
   }
 }

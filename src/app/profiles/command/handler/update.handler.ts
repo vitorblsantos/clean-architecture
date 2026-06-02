@@ -1,14 +1,15 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs'
 
 import { UpdateProfileCommand } from '@app/profiles/command/update.command'
-import { ProfilesService } from '@app/services/profiles/profiles.service'
+
+import { IProfilesService } from '@domain/interfaces/services/profile-service.interface'
 
 @CommandHandler(UpdateProfileCommand)
 export class UpdateProfileHandler implements ICommandHandler<UpdateProfileCommand, void> {
-  constructor(private readonly ProfilesService: ProfilesService) {}
+  constructor(private readonly profilesService: IProfilesService) {}
 
   async execute(command: UpdateProfileCommand): Promise<void> {
     const { id, payload } = command
-    await this.ProfilesService.update({ id, ...payload })
+    await this.profilesService.update({ id, ...payload })
   }
 }
