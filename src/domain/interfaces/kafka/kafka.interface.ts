@@ -1,5 +1,3 @@
-import { EachMessagePayload } from 'kafkajs'
-
 export interface EnqueueTaskArgs {
   topic: string
   payload: Record<string, unknown>
@@ -7,11 +5,20 @@ export interface EnqueueTaskArgs {
   headers?: Record<string, string>
 }
 
-export interface IKafkaService {
-  enqueue(args: EnqueueTaskArgs): Promise<void>
-  subscribe(
+export interface IncomingMessage {
+  topic: string
+  partition: number
+  key: string | null
+  value: string | null
+  headers?: Record<string, string | undefined>
+  heartbeat: () => Promise<void>
+}
+
+export abstract class IKafkaService {
+  abstract enqueue(args: EnqueueTaskArgs): Promise<void>
+  abstract subscribe(
     topic: string,
-    eachMessage: (payload: EachMessagePayload) => Promise<void>,
-    fromBeginning: boolean,
+    eachMessage: (message: IncomingMessage) => Promise<void>,
+    fromBeginning?: boolean,
   ): Promise<void>
 }

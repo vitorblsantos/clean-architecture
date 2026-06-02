@@ -1,10 +1,10 @@
 import { ProfilesEntity } from '@domain/entities/profiles/profiles.entity'
 
-export interface IProfilesService {
-  create(profile: ProfilesEntity): Promise<ProfilesEntity>
-  delete(id: string): Promise<void>
-  enqueue(payload: Partial<ProfilesEntity>): Promise<void>
-  findAll(): Promise<ProfilesEntity[]>
-  findById(id: string): Promise<ProfilesEntity>
-  update(payload: Partial<ProfilesEntity>): Promise<ProfilesEntity>
+export abstract class IProfilesService {
+  abstract create(payload: Partial<ProfilesEntity>): Promise<ProfilesEntity>
+  abstract delete(id: string): Promise<void>
+  abstract enqueue(payload: Partial<ProfilesEntity>): Promise<void>
+  abstract findAll(): Promise<ProfilesEntity[]>
+  abstract findById(id: string): Promise<ProfilesEntity>
+  abstract update(payload: Partial<ProfilesEntity> & { id: string }): Promise<ProfilesEntity>
 }

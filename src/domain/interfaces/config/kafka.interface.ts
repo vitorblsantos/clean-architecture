@@ -1,6 +1,6 @@
-export interface KafkaConfig {
-  getKafkaBrokers(): string[]
-  getKafkaClientId(): string
-  getKafkaTopicProfilesSync(): string
-  getKafkaTopicProfilesSyncDLQ(): string
+export abstract class KafkaConfig {
+  abstract getKafkaBrokers(): string[]
+  abstract getKafkaClientId(): string
+  abstract getKafkaTopicProfilesSync(): string
+  abstract getKafkaTopicProfilesSyncDLQ(): string
 }

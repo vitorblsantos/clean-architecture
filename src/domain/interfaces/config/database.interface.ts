@@ -1,10 +1,10 @@
-export interface DatabaseConfig {
-  getDatabaseHost(): string
-  getDatabaseName(): string
-  getDatabasePassword(): string
-  getDatabasePort(): number
-  getDatabaseSchema(): string
-  getDatabaseSync(): boolean
-  getDatabaseTimezone(): string
-  getDatabaseUser(): string
+export abstract class DatabaseConfig {
+  abstract getDatabaseHost(): string
+  abstract getDatabaseName(): string
+  abstract getDatabasePassword(): string
+  abstract getDatabasePort(): number
+  abstract getDatabaseSchema(): string
+  abstract getDatabaseSync(): boolean
+  abstract getDatabaseTimezone(): string
+  abstract getDatabaseUser(): string
 }
