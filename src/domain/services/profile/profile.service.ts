@@ -1,4 +1,5 @@
 import { v6 as uuidv6 } from 'uuid'
+
 import { ProfilesEntity } from '@domain/entities/profiles/profiles.entity'
 
 export class ProfileDomainService {
@@ -26,16 +27,6 @@ export class ProfileDomainService {
 
   isProfileComplete(profile: ProfilesEntity): boolean {
     return !!(profile.name && profile.lastname)
-  }
-
-  updateProfilesEntity(profileData: Partial<ProfilesEntity>): Partial<ProfilesEntity> {
-    const { id, name, lastname } = profileData
-
-    if (!id) throw new Error('id is required')
-    if (!name && !lastname) throw new Error('At least one of name or lastname is required to update a profile')
-    const payload = { ...profileData, updatedAt: new Date() }
-
-    return payload
   }
 
   validateProfileData(profileData: { name: ProfilesEntity['name']; lastname: ProfilesEntity['lastname'] }): void {
