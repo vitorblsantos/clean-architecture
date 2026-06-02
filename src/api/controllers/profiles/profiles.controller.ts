@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPi
 import { CommandBus, QueryBus } from '@nestjs/cqrs'
 import { ApiBody, ApiExcludeEndpoint, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger'
 
-import { ProfilesDto, UpdateProfileDto } from '@api/dto/profiles/profiles.dto'
+import { ProfilesDto, ProfileResponseDto, UpdateProfileDto } from '@api/dto/profiles/profiles.dto'
 
 import { CreateProfileCommand } from '@app/profiles/command/create.command'
 import { DeleteProfileCommand } from '@app/profiles/command/delete.command'
@@ -11,6 +11,7 @@ import { UpdateProfileCommand } from '@app/profiles/command/update.command'
 
 import { GetProfileByIdQuery } from '@app/profiles/query/get-profile-by-id.query'
 import { GetProfilesQuery } from '@app/profiles/query/get-profiles.query'
+
 import { ProfilesEntity } from '@domain/entities/profiles/profiles.entity'
 
 @ApiTags('Profiles')
@@ -30,8 +31,9 @@ export class ProfilesController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'No profiles found' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.OK)
-  async findAll(): Promise<ProfilesEntity[]> {
-    return await this.queryBus.execute(new GetProfilesQuery())
+  async findAll(): Promise<ProfileResponseDto[]> {
+    const profiles = await this.queryBus.execute<GetProfilesQuery, ProfilesEntity[]>(new GetProfilesQuery())
+    return ProfileResponseDto.fromEntities(profiles)
   }
 
   @Post('/')
@@ -41,8 +43,11 @@ export class ProfilesController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() body: ProfilesDto): Promise<ProfilesEntity> {
-    return await this.commandBus.execute(new CreateProfileCommand(body.name, body.lastname))
+  async create(@Body() body: ProfilesDto): Promise<ProfileResponseDto> {
+    const profile = await this.commandBus.execute<CreateProfileCommand, ProfilesEntity>(
+      new CreateProfileCommand(body.name, body.lastname),
+    )
+    return ProfileResponseDto.fromEntity(profile)
   }
 
   @Get('/:id')
@@ -52,8 +57,9 @@ export class ProfilesController {
   @ApiResponse({ status: HttpStatus.NOT_FOUND, description: 'No profile found' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.OK)
-  async findById(@Param('id', ParseUUIDPipe) id: string): Promise<ProfilesEntity> {
-    return await this.queryBus.execute(new GetProfileByIdQuery(id))
+  async findById(@Param('id', ParseUUIDPipe) id: string): Promise<ProfileResponseDto> {
+    const profile = await this.queryBus.execute<GetProfileByIdQuery, ProfilesEntity>(new GetProfileByIdQuery(id))
+    return ProfileResponseDto.fromEntity(profile)
   }
 
   @Put('/:id')
@@ -83,7 +89,10 @@ export class ProfilesController {
   @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
   @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
   @HttpCode(HttpStatus.ACCEPTED)
-  async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateProfileDto): Promise<ProfilesEntity> {
-    return await this.commandBus.execute(new UpdateProfileCommand(id, body))
+  async update(@Param('id', ParseUUIDPipe) id: string, @Body() body: UpdateProfileDto): Promise<ProfileResponseDto> {
+    const profile = await this.commandBus.execute<UpdateProfileCommand, ProfilesEntity>(
+      new UpdateProfileCommand(id, body),
+    )
+    return ProfileResponseDto.fromEntity(profile)
   }
 }
