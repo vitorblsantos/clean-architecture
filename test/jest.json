@@ -7,10 +7,13 @@
     "^@infra/(.*)$": "<rootDir>/../src/infra/$1"
   },
   "rootDir": ".",
-  "testEnvironment": "node",
-  "testRegex": ".e2e-spec.ts$",
+  "roots": ["<rootDir>/../src"],
+  "testRegex": ".*\\.spec\\.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
+  "collectCoverageFrom": ["<rootDir>/../src/**/*.(t|j)s"],
+  "coverageDirectory": "<rootDir>/../coverage",
+  "testEnvironment": "node",
   "transformIgnorePatterns": ["node_modules/(?!uuid)"]
 }
