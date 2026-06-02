@@ -66,10 +66,10 @@ export class EnvironmentService implements AppConfig, DatabaseConfig, KafkaConfi
   }
 
   getKafkaTopicProfilesSync(): string {
-    return this.configService.getOrThrow<string>('KAFKA_TOPIC_CONTACTS_SYNC')
+    return this.configService.getOrThrow<string>('KAFKA_TOPIC_PROFILES_SYNC')
   }
 
   getKafkaTopicProfilesSyncDLQ(): string {
-    return this.configService.getOrThrow<string>('KAFKA_TOPIC_CONTACTS_SYNC_DLQ')
+    return this.configService.getOrThrow<string>('KAFKA_TOPIC_PROFILES_SYNC_DLQ')
   }
 }
