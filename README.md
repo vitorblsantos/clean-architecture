@@ -124,13 +124,17 @@ Swagger disponível em `/`. JSON do spec em `/json`.
 A fila é abstraída pela interface `IKafkaService` em `src/domain/interfaces/kafka/kafka.interface.ts`:
 
 ```ts
-export interface IKafkaService {
-  enqueue(args: EnqueueTaskArgs): Promise<void>
-  subscribe(topic: string, eachMessage: ..., fromBeginning: boolean): Promise<void>
+export abstract class IKafkaService {
+  abstract enqueue(args: EnqueueTaskArgs): Promise<void>
+  abstract subscribe(
+    topic: string,
+    eachMessage: (msg: IncomingMessage) => Promise<void>,
+    fromBeginning?: boolean,
+  ): Promise<void>
 }
 ```
 
-A implementação fica em `src/app/services/kafka/kafka.service.ts` (a migrar para `src/infra/kafka/` conforme o plano de arquitetura). Para enfileirar:
+A implementação concreta (`KafkaService`, KafkaJS) fica em `src/infra/kafka/kafka.service.ts` e é registrada no `KafkaModule` via token `IKafkaService`. A camada de aplicação injeta **somente** a interface. Para enfileirar:
 
 ```ts
 await this.kafkaService.enqueue({
@@ -143,7 +147,9 @@ Para adicionar um novo tópico:
 
 1. Definir a env do tópico (ex.: `KAFKA_TOPIC_MEU_EVENTO`).
 2. Expor getter em `KafkaConfig` / `EnvironmentService`.
-3. Chamar `kafkaService.enqueue({ topic, payload })`.
+3. Injetar `IKafkaService` e chamar `enqueue({ topic, payload })`.
+
+> O lado **consumer** (worker que consome a fila e chama `PUT /v1/profiles/:id/update`) ainda não está implementado — `IKafkaService.subscribe` já existe para isso.
 
 ---
 
