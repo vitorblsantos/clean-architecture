@@ -1,13 +1,13 @@
 # Clean Arch
 
-API com **Clean Architecture** e **CQRS**, com fila de tarefas plugável (Kafka em local, Google Cloud Tasks em produção).
+API com **Clean Architecture** e **CQRS**, com fila de mensagens via **Kafka**.
 
 ## Stack
 
 - NestJS + Fastify
 - CQRS (`@nestjs/cqrs`) — separação de comandos, queries e events
 - TypeORM + PostgreSQL
-- KafkaJS (fila local) / `@google-cloud/tasks` (fila em produção)
+- KafkaJS (fila de mensagens)
 - Zod (validação de env)
 - Swagger (`@nestjs/swagger`)
 - Helmet + Throttler (rate limit global)
@@ -21,7 +21,7 @@ src/
 ├── app/            # Módulos de feature, commands, queries, handlers, events, serviços de aplicação,
 │                   # interceptors e decorators
 ├── domain/         # Entidades, interfaces (repositórios, serviços), regras de domínio puras
-└── infra/          # TypeORM, repositórios, config, tasks (Kafka/Cloud Tasks), logger, integrações
+└── infra/          # TypeORM, repositórios, Kafka, config, logger, integrações
 ```
 
 A organização em pastas reflete a **regra de dependência** da Clean Architecture: o domínio fica no centro; a aplicação orquestra casos de uso; a API e a infraestrutura são “pontas” que dependem de camadas interiores, não o contrário.
@@ -72,7 +72,7 @@ Network: `clean-arch-app` (bridge, gerida pelo próprio Compose).
 
 ## Variáveis de ambiente
 
-Validadas com Zod em `src/infra/config/environment/environment.validate.ts`.
+Validadas com Zod em `src/domain/services/environment/environment.service.ts` (via `EnvironmentModule`).
 
 ### Aplicação
 
@@ -95,23 +95,14 @@ Validadas com Zod em `src/infra/config/environment/environment.validate.ts`.
 | `DATABASE_SYNCHRONIZE` | `false`      | Sincronizar entidades (TypeORM) |
 | `DATABASE_TIMEZONE`    | `UTC`        | Timezone do driver              |
 
-### Tasks (Kafka — `NODE_ENV=local`)
+### Kafka
 
-| Variável          | Default      | Descrição                                                                                                |
-| ----------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
-| `KAFKA_BROKERS`   | —            | Lista CSV de brokers. Ex.: `localhost:29092` (host) ou `kafka:9092` (compose). **Obrigatório em local**. |
-| `KAFKA_CLIENT_ID` | `clean-arch` | Identificador do cliente KafkaJS                                                                         |
-
-### Tasks (Cloud Tasks — `NODE_ENV != local`)
-
-| Variável                    | Default          | Descrição                                                                          |
-| --------------------------- | ---------------- | ---------------------------------------------------------------------------------- |
-| `GCP_PROJECT_ID`            | —                | Projeto GCP. **Obrigatório fora de local**.                                        |
-| `GCP_TASKS_LOCATION`        | `us-central1`    | Região do Cloud Tasks                                                              |
-| `TASK_QUEUE_PROFILE_UPDATE` | `profile-update` | Nome da fila para `profile.update`                                                 |
-| `TASK_URL_PROFILE_UPDATE`   | —                | URL chamada pela task (suporta `{id}` no template). **Obrigatório fora de local**. |
-
-> O nome da env é derivado do `topic`: `profile.update` → `TASK_QUEUE_PROFILE_UPDATE` / `TASK_URL_PROFILE_UPDATE`. Para adicionar um novo topic basta criar o par de envs correspondente.
+| Variável                              | Default      | Descrição                                                                                                |
+| ------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
+| `KAFKA_BROKERS`                       | —            | Lista CSV de brokers. Ex.: `localhost:29092` (host) ou `kafka:9092` (compose). **Obrigatório**.          |
+| `KAFKA_CLIENT_ID`                     | `clean-arch` | Identificador do cliente KafkaJS                                                                         |
+| `KAFKA_TOPIC_CONTACTS_SYNC`           | —            | Tópico para enfileirar atualização de profiles                                                           |
+| `KAFKA_TOPIC_CONTACTS_SYNC_DLQ`       | —            | Tópico DLQ (opcional no schema Zod)                                                                      |
 
 Swagger disponível em `/`. JSON do spec em `/json`.
 
@@ -122,38 +113,37 @@ Swagger disponível em `/`. JSON do spec em `/json`.
 | `GET`    | `/v1/profiles`            | Lista profiles.                                                                                |
 | `GET`    | `/v1/profiles/:id`        | Busca profile por id.                                                                          |
 | `POST`   | `/v1/profiles`            | Cria profile.                                                                                  |
-| `PUT`    | `/v1/profiles/:id`        | **Enfileira** atualização (Kafka em local, Cloud Tasks fora). `202 Accepted`.                  |
-| `PUT`    | `/v1/profiles/:id/update` | Endpoint **interno** chamado pelo worker/Cloud Task para aplicar o update. (oculto no Swagger) |
+| `PUT`    | `/v1/profiles/:id`        | **Enfileira** atualização no Kafka. `202 Accepted`.                                           |
+| `PUT`    | `/v1/profiles/:id/update` | Endpoint **interno** chamado pelo consumer Kafka para aplicar o update. (oculto no Swagger)  |
 | `DELETE` | `/v1/profiles/:id/delete` | Soft-delete (`deletedAt`). (oculto no Swagger)                                                 |
 
 ---
 
-## Tasks / fila plugável
+## Kafka / fila de mensagens
 
-A fila é abstraída por uma única interface:
+A fila é abstraída pela interface `IKafkaService` em `src/domain/interfaces/kafka/kafka.interface.ts`:
 
 ```ts
-// src/domain/interfaces/services/tasks-service.interface.ts
-export interface ITasksService {
+export interface IKafkaService {
   enqueue(args: EnqueueTaskArgs): Promise<void>
+  subscribe(topic: string, eachMessage: ..., fromBeginning: boolean): Promise<void>
 }
 ```
 
-Duas implementações em `src/infra/tasks/`:
-
-- `KafkaTasksService` — usado quando `NODE_ENV=local`. Producer KafkaJS; cada `enqueue({ topic, payload })` publica uma mensagem.
-- `CloudTasksService` — usado nos demais ambientes. Cria uma `httpRequest` task no Google Cloud Tasks para a URL definida em `TASK_URL_<TOPIC>` (placeholders `{campo}` são preenchidos a partir do `payload`).
-
-A escolha é feita em `src/infra/tasks/tasks.module.ts` e exposta pelo token `TASKS_SERVICE`. Para consumir:
+A implementação fica em `src/app/services/kafka/kafka.service.ts` (a migrar para `src/infra/kafka/` conforme o plano de arquitetura). Para enfileirar:
 
 ```ts
-constructor(@Inject(TASKS_SERVICE) private readonly tasks: ITasksService) {}
+await this.kafkaService.enqueue({
+  topic: this.kafkaConfig.getKafkaTopicProfilesSync(),
+  payload: profilesEntity,
+})
 ```
 
-Para adicionar um novo topic só é preciso:
+Para adicionar um novo tópico:
 
-1. Chamar `tasks.enqueue({ topic: 'meu.topic', payload: {...} })`.
-2. (Apenas fora de local) Definir `TASK_QUEUE_MEU_TOPIC` e `TASK_URL_MEU_TOPIC`.
+1. Definir a env do tópico (ex.: `KAFKA_TOPIC_MEU_EVENTO`).
+2. Expor getter em `KafkaConfig` / `EnvironmentService`.
+3. Chamar `kafkaService.enqueue({ topic, payload })`.
 
 ---
 
@@ -222,9 +212,9 @@ api / infra  →  app  →  domain
 ```
 
 - **`domain/`** — o centro. Entidades, interfaces (repositórios, serviços) e regras de domínio puras. **Não importa** NestJS, TypeORM, Fastify, KafkaJS nem nada de `api/` ou `infra/`.
-- **`app/`** — casos de uso: serviços de aplicação, commands, queries, events e handlers. Orquestram o domínio e falam com o exterior **através de interfaces** definidas no domínio (ex.: `ITasksService`, `IProfileRepository`).
+- **`app/`** — casos de uso: serviços de aplicação, commands, queries, events e handlers. Orquestram o domínio e falam com o exterior **através de interfaces** definidas no domínio (ex.: `IKafkaService`, `IProfilesRepository`).
 - **`api/`** — borda HTTP: controllers, DTOs, validação de entrada, Swagger. Só despacha para `CommandBus` / `QueryBus`.
-- **`infra/`** — borda técnica: implementações (TypeORM, repositórios, Kafka, Cloud Tasks, config, logger). **Implementa** os contratos do `domain/` e é selecionada pelos módulos via tokens (ex.: `TASKS_SERVICE`, `'IProfileRepository'`).
+- **`infra/`** — borda técnica: implementações (TypeORM, repositórios, Kafka, config, logger). **Implementa** os contratos do `domain/` e é selecionada pelos módulos via tokens (ex.: `IProfilesRepository`).
 
 **Nunca** o contrário: o `domain` não “conhece” a infraestrutura; a aplicação não depende de detalhes concretos de entrega, só de abstrações.
 
@@ -237,7 +227,7 @@ infra  →  app  →  domain
 api    →  app  →  domain
 ```
 
-O domínio permanece estável quando trocas base de dados, fila (Kafka ↔ Cloud Tasks) ou o adaptador HTTP.
+O domínio permanece estável quando trocas base de dados, broker Kafka ou o adaptador HTTP.
 
 ### CQRS neste repositório
 
@@ -253,10 +243,10 @@ Fluxo típico (assíncrono via fila):
 
 ```text
 Controller → EnqueueProfileUpdateCommand → Handler → ProfilesService.enqueue
-                                                    └─ ITasksService (Kafka local | Cloud Tasks prod)
+                                                    └─ IKafkaService.enqueue (publica no tópico)
                                                                                  │
                                                                                  ▼
-                                                       Worker / HTTP callback → PUT /v1/profiles/:id/update
+                                                       Kafka consumer → PUT /v1/profiles/:id/update
                                                                                  │
                                                                                  ▼
                                                        UpdateProfileCommand → Handler → ProfilesService.update
@@ -269,7 +259,7 @@ Controller → EnqueueProfileUpdateCommand → Handler → ProfilesService.enque
 | `*.event.ts`                  | `app/<feature>/events/`                                  | Eventos de domínio/aplicação (ex.: falhas, side-effects).                |
 | `*Service` (aplicação)        | `app/services/...`                                       | Orquestra regras e acessos, usando interfaces do `domain/`.              |
 | `*.controller.ts`             | `api/controllers/`                                       | Valida o input e despacha `CommandBus` / `QueryBus`.                     |
-| Repositórios, ORM, filas      | `infra/`                                                 | Detalhes de persistência e integração (TypeORM, Kafka, Cloud Tasks).     |
+| Repositórios, ORM, Kafka      | `infra/`                                                 | Detalhes de persistência e integração (TypeORM, Kafka).                    |
 
 ### Na prática
 
@@ -278,11 +268,11 @@ Controller → EnqueueProfileUpdateCommand → Handler → ProfilesService.enque
 - **Precisa de uma nova interface ou modelo de domínio?** Coloca em `domain/`.
 - **Precisa de integrar com algo externo (banco, fila, API)?** Implementa em `infra/` e **implementa** uma interface do `domain/`.
 - **Precisa de um novo endpoint?** Cria o controller em `api/controllers/` e despacha commands/queries pelos buses (mantém a borda fina).
-- **Precisa enfileirar trabalho?** Injeta `ITasksService` via `TASKS_SERVICE` e chama `enqueue({ topic, payload })` — a implementação certa (Kafka ou Cloud Tasks) é resolvida pelo `NODE_ENV`.
+- **Precisa enfileirar trabalho?** Injeta `IKafkaService` (via DI no módulo) e chama `enqueue({ topic, payload })`.
 
 ### O que não fazer (geral)
 
 - Não importar nada de `api/` ou `infra/` de dentro de `domain/` (o domínio permanece puro).
 - Não colocar **lógica de negócio** no controller; ela fica no domínio e nos serviços de aplicação orquestrados pelos handlers.
 - Não usar **classes concretas** de infraestrutura dentro do domínio: depende das **interfaces** definidas no `domain/`.
-- Não acoplar features à implementação concreta de fila (Kafka/Cloud Tasks): sempre via `ITasksService`.
+- Não acoplar features à implementação concreta de Kafka: sempre via `IKafkaService`.
