@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common'
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm'
 
-import { EnvironmentModule } from '@infra/environment/environment.module'
-import { EnvironmentService } from '@app/services/environment/environment.service'
-import { ProfilesModel } from '@infra/models/profiles/profiles.model'
-import { EEnvironment } from '@domain/interfaces/enums/environment.enum'
 import { DataSourceOptions } from 'typeorm'
+
+import { EEnvironment } from '@domain/interfaces/enums/environment.enum'
+import { EnvironmentModule } from '@infra/environment/environment.module'
+import { EnvironmentService } from '@infra/environment/environment.service'
+import { ProfilesModel } from '@infra/models/profiles/profiles.model'
 
 const typeormConfig = (config: EnvironmentService): TypeOrmModuleOptions => {
   const tz = config.getDatabaseTimezone()

@@ -7,9 +7,9 @@ import helmet from '@fastify/helmet'
 
 import { LoggingInterceptor } from '@app/interceptors/logger/logger.interceptor'
 import { ResponseInterceptor } from '@app/interceptors/response/response.interceptor'
-import { LoggerService } from '@app/services/logger/logger.service'
 
-import { EnvironmentService } from '@app/services/environment/environment.service'
+import { EnvironmentService } from '@infra/environment/environment.service'
+import { LoggerService } from '@infra/logger/logger.service'
 
 import { MainModule } from './main.module'
 
