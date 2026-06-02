@@ -1,17 +1,17 @@
 import { ConsoleLogger, Injectable } from '@nestjs/common'
 
-import { ILogger } from '@domain/interfaces/logger/logger.interface'
+import { AppConfig } from '@domain/interfaces/config/app.interface'
 import { EEnvironment } from '@domain/interfaces/enums/environment.enum'
-import { EnvironmentService } from '@app/services/environment/environment.service'
+import { ILogger } from '@domain/interfaces/logger/logger.interface'
 
 @Injectable()
 export class LoggerService extends ConsoleLogger implements ILogger {
-  constructor(private readonly environmentService: EnvironmentService) {
+  constructor(private readonly appConfig: AppConfig) {
     super()
   }
 
   debug(context: string, message: string) {
-    if (this.environmentService.getAppEnvironment() === EEnvironment.Production) return
+    if (this.appConfig.getAppEnvironment() === EEnvironment.Production) return
 
     super.debug(`[DEBUG] ${message}`, context)
   }
@@ -25,7 +25,7 @@ export class LoggerService extends ConsoleLogger implements ILogger {
   }
 
   verbose(context: string, message: string) {
-    if (this.environmentService.getAppEnvironment() === EEnvironment.Production) return
+    if (this.appConfig.getAppEnvironment() === EEnvironment.Production) return
 
     super.verbose(`[VERBOSE] ${message}`, context)
   }
