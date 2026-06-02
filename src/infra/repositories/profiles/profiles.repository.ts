@@ -1,11 +1,13 @@
-import { Injectable, NotFoundException } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm'
 import { Repository } from 'typeorm'
 
 import { ProfilesEntity } from '@domain/entities/profiles/profiles.entity'
+import { ProfileNotFoundError } from '@domain/exceptions/profile-not-found.error'
 import { IProfilesRepository } from '@domain/interfaces/repositories/profiles-repository.interface'
 
 import { ProfilesModel } from '@infra/models/profiles/profiles.model'
+import { ProfilesMapper } from '@infra/repositories/profiles/profiles.mapper'
 
 @Injectable()
 export class ProfilesRepository implements IProfilesRepository {
@@ -15,7 +17,8 @@ export class ProfilesRepository implements IProfilesRepository {
   ) {}
 
   async create(profile: ProfilesEntity): Promise<ProfilesEntity> {
-    return await this.profileRepository.save(profile)
+    const saved = await this.profileRepository.save(ProfilesMapper.toPersistence(profile))
+    return ProfilesMapper.toDomain(saved)
   }
 
   async delete(id: string): Promise<void> {
@@ -24,19 +27,20 @@ export class ProfilesRepository implements IProfilesRepository {
   }
 
   async findAll(): Promise<ProfilesEntity[]> {
-    return await this.profileRepository.find()
+    const profiles = await this.profileRepository.find()
+    return profiles.map((profile) => ProfilesMapper.toDomain(profile))
   }
 
   async findById(id: string): Promise<ProfilesEntity> {
     const profile = await this.profileRepository.findOne({ where: { id } })
 
-    if (!profile) throw new NotFoundException(`Profile with id ${id} not found`)
+    if (!profile) throw new ProfileNotFoundError(id)
 
-    return profile
+    return ProfilesMapper.toDomain(profile)
   }
 
   async update(id: string, payload: Partial<Omit<ProfilesEntity, 'id'>>): Promise<ProfilesEntity> {
-    await this.profileRepository.update({ id }, payload)
+    await this.profileRepository.update({ id }, ProfilesMapper.toPersistence(payload))
     return await this.findById(id)
   }
 }
