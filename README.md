@@ -97,25 +97,25 @@ Validadas com Zod em `src/domain/services/environment/environment.service.ts` (v
 
 ### Kafka
 
-| Variável                              | Default      | Descrição                                                                                                |
-| ------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
-| `KAFKA_BROKERS`                       | —            | Lista CSV de brokers. Ex.: `localhost:29092` (host) ou `kafka:9092` (compose). **Obrigatório**.          |
-| `KAFKA_CLIENT_ID`                     | `clean-arch` | Identificador do cliente KafkaJS                                                                         |
-| `KAFKA_TOPIC_CONTACTS_SYNC`           | —            | Tópico para enfileirar atualização de profiles                                                           |
-| `KAFKA_TOPIC_CONTACTS_SYNC_DLQ`       | —            | Tópico DLQ (opcional no schema Zod)                                                                      |
+| Variável                        | Default      | Descrição                                                                                       |
+| ------------------------------- | ------------ | ----------------------------------------------------------------------------------------------- |
+| `KAFKA_BROKERS`                 | —            | Lista CSV de brokers. Ex.: `localhost:29092` (host) ou `kafka:9092` (compose). **Obrigatório**. |
+| `KAFKA_CLIENT_ID`               | `clean-arch` | Identificador do cliente KafkaJS                                                                |
+| `KAFKA_TOPIC_CONTACTS_SYNC`     | —            | Tópico para enfileirar atualização de profiles                                                  |
+| `KAFKA_TOPIC_CONTACTS_SYNC_DLQ` | —            | Tópico DLQ (opcional no schema Zod)                                                             |
 
 Swagger disponível em `/`. JSON do spec em `/json`.
 
 ## Endpoints (Profile)
 
-| Método   | Rota                      | O que faz                                                                                      |
-| -------- | ------------------------- | ---------------------------------------------------------------------------------------------- |
-| `GET`    | `/v1/profiles`            | Lista profiles.                                                                                |
-| `GET`    | `/v1/profiles/:id`        | Busca profile por id.                                                                          |
-| `POST`   | `/v1/profiles`            | Cria profile.                                                                                  |
-| `PUT`    | `/v1/profiles/:id`        | **Enfileira** atualização no Kafka. `202 Accepted`.                                           |
-| `PUT`    | `/v1/profiles/:id/update` | Endpoint **interno** chamado pelo consumer Kafka para aplicar o update. (oculto no Swagger)  |
-| `DELETE` | `/v1/profiles/:id/delete` | Soft-delete (`deletedAt`). (oculto no Swagger)                                                 |
+| Método   | Rota                      | O que faz                                                                                   |
+| -------- | ------------------------- | ------------------------------------------------------------------------------------------- |
+| `GET`    | `/v1/profiles`            | Lista profiles.                                                                             |
+| `GET`    | `/v1/profiles/:id`        | Busca profile por id.                                                                       |
+| `POST`   | `/v1/profiles`            | Cria profile.                                                                               |
+| `PUT`    | `/v1/profiles/:id`        | **Enfileira** atualização no Kafka. `202 Accepted`.                                         |
+| `PUT`    | `/v1/profiles/:id/update` | Endpoint **interno** chamado pelo consumer Kafka para aplicar o update. (oculto no Swagger) |
+| `DELETE` | `/v1/profiles/:id/delete` | Soft-delete (`deletedAt`). (oculto no Swagger)                                              |
 
 ---
 
@@ -259,7 +259,7 @@ Controller → EnqueueProfileUpdateCommand → Handler → ProfilesService.enque
 | `*.event.ts`                  | `app/<feature>/events/`                                  | Eventos de domínio/aplicação (ex.: falhas, side-effects).                |
 | `*Service` (aplicação)        | `app/services/...`                                       | Orquestra regras e acessos, usando interfaces do `domain/`.              |
 | `*.controller.ts`             | `api/controllers/`                                       | Valida o input e despacha `CommandBus` / `QueryBus`.                     |
-| Repositórios, ORM, Kafka      | `infra/`                                                 | Detalhes de persistência e integração (TypeORM, Kafka).                    |
+| Repositórios, ORM, Kafka      | `infra/`                                                 | Detalhes de persistência e integração (TypeORM, Kafka).                  |
 
 ### Na prática
 
