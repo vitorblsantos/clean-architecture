@@ -16,7 +16,11 @@ describe('AppController (e2e)', () => {
     await app.init()
   })
 
-  it('/ (GET)', () => {
-    return request(app.getHttpServer()).get('/').expect(200).expect('Hello World!')
+  it('/ (GET) serves the Swagger UI', () => {
+    return request(app.getHttpServer()).get('/').expect(200)
+  })
+
+  it('/json (GET) serves the OpenAPI spec', () => {
+    return request(app.getHttpServer()).get('/json').expect(200)
   })
 })
