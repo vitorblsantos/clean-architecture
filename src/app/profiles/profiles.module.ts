@@ -12,6 +12,7 @@ import { GetProfilesHandler } from '@app/profiles/query/handler/get-profiles.han
 import { ProfilesService } from '@app/services/profiles/profiles.service'
 
 import { IProfilesRepository } from '@domain/interfaces/repositories/profiles-repository.interface'
+import { IProfilesService } from '@domain/interfaces/services/profile-service.interface'
 import { ProfileDomainService } from '@domain/services/profile/profile.service'
 
 import { EnvironmentModule } from '@infra/environment/environment.module'
@@ -27,16 +28,13 @@ export const Sagas = []
 @Module({
   imports: [EnvironmentModule, KafkaModule, LoggerModule, TypeOrmModule.forFeature([ProfilesModel])],
   providers: [
-    ProfilesService,
     ProfileDomainService,
-    {
-      provide: IProfilesRepository,
-      useClass: ProfilesRepository,
-    },
+    { provide: IProfilesService, useClass: ProfilesService },
+    { provide: IProfilesRepository, useClass: ProfilesRepository },
     ...Commands,
     ...Queries,
     ...Sagas,
   ],
-  exports: [ProfilesService, ProfileDomainService],
+  exports: [IProfilesService, ProfileDomainService],
 })
 export class ProfileModule {}

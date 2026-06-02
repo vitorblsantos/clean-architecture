@@ -1,9 +1,9 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common'
-
-import { EnvironmentService } from '@app/services/environment/environment.service'
-import { KafkaService } from '@app/services/kafka/kafka.service'
+import { Injectable } from '@nestjs/common'
 
 import { ProfilesEntity } from '@domain/entities/profiles/profiles.entity'
+import { InvalidProfileDataError } from '@domain/exceptions/invalid-profile-data.error'
+import { KafkaConfig } from '@domain/interfaces/config/kafka.interface'
+import { IKafkaService } from '@domain/interfaces/kafka/kafka.interface'
 import { IProfilesRepository } from '@domain/interfaces/repositories/profiles-repository.interface'
 import { IProfilesService } from '@domain/interfaces/services/profile-service.interface'
 import { ProfileDomainService } from '@domain/services/profile/profile.service'
@@ -11,8 +11,8 @@ import { ProfileDomainService } from '@domain/services/profile/profile.service'
 @Injectable()
 export class ProfilesService implements IProfilesService {
   constructor(
-    private readonly environmentService: EnvironmentService,
-    private readonly kafkaService: KafkaService,
+    private readonly kafkaConfig: KafkaConfig,
+    private readonly kafkaService: IKafkaService,
     private readonly profileDomainService: ProfileDomainService,
     private readonly profileRepository: IProfilesRepository,
   ) {}
@@ -20,14 +20,14 @@ export class ProfilesService implements IProfilesService {
   async create(payload: Partial<ProfilesEntity>): Promise<ProfilesEntity> {
     const { name, lastname } = payload
 
-    if (!lastname || !name) throw new BadRequestException('Name and lastname are required')
+    if (!lastname || !name) throw new InvalidProfileDataError('Name and lastname are required')
 
-    const ProfilesEntity = this.profileDomainService.createProfilesEntity({
+    const profilesEntity = this.profileDomainService.createProfilesEntity({
       name,
       lastname,
     })
 
-    return await this.profileRepository.create(ProfilesEntity)
+    return await this.profileRepository.create(profilesEntity)
   }
 
   async delete(id: string): Promise<void> {
@@ -35,19 +35,14 @@ export class ProfilesService implements IProfilesService {
   }
 
   async enqueue(payload: Partial<ProfilesEntity>): Promise<void> {
-    const profilesEntity = this.profileDomainService.updateProfilesEntity(payload)
-
     await this.kafkaService.enqueue({
-      topic: this.environmentService.getKafkaTopicProfilesSync(),
-      payload: profilesEntity,
+      topic: this.kafkaConfig.getKafkaTopicProfilesSync(),
+      payload,
     })
   }
 
   async findAll(): Promise<ProfilesEntity[]> {
-    const profiles = await this.profileRepository.findAll()
-
-    if (!profiles.length) throw new NotFoundException('No profiles found')
-    return profiles
+    return await this.profileRepository.findAll()
   }
 
   async findById(id: string): Promise<ProfilesEntity> {
@@ -55,8 +50,6 @@ export class ProfilesService implements IProfilesService {
   }
 
   async update(payload: Partial<ProfilesEntity> & { id: string }): Promise<ProfilesEntity> {
-    const profilesEntity = this.profileDomainService.updateProfilesEntity(payload)
-
-    return await this.profileRepository.update(payload.id, profilesEntity)
+    return await this.profileRepository.update(payload.id, payload)
   }
 }
