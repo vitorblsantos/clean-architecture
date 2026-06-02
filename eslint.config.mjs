@@ -52,6 +52,20 @@ export default [
       'import-x/no-named-as-default': 'warn',
       'import-x/no-named-as-default-member': 'warn',
       'import-x/no-duplicates': 'warn',
+      'import-x/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            { target: './src/domain', from: './src/app' },
+            { target: './src/domain', from: './src/api' },
+            { target: './src/domain', from: './src/infra' },
+            { target: './src/app', from: './src/api' },
+            { target: './src/app', from: './src/infra' },
+            { target: './src/infra', from: './src/app' },
+            { target: './src/infra', from: './src/api' },
+          ],
+        },
+      ],
       indent: 'off',
       quotes: ['error', 'single', { avoidEscape: true }],
       'comma-dangle': ['error', 'never'],
@@ -85,6 +99,12 @@ export default [
     files: ['**/*.config.js', '**/jest.preset.js'],
     rules: {
       '@typescript-eslint/no-require-imports': 'off',
+    },
+  },
+  {
+    files: ['**/*.module.ts', 'src/main.ts'],
+    rules: {
+      'import-x/no-restricted-paths': 'off',
     },
   },
 ]
