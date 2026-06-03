@@ -30,6 +30,19 @@ export class EnvironmentDomainService {
 
     NODE_ENV: z.enum(EEnvironment).default(EEnvironment.Local),
     PORT: z.coerce.number().default(8080),
+
+    REDIS_DB: z.coerce.number().default(0),
+    REDIS_HOST: z.string().default('localhost'),
+    REDIS_PASSWORD: z.string().optional(),
+    REDIS_PORT: z.coerce.number().default(6379),
+    REDIS_TLS_ENABLED: z
+      .string()
+      .default('false')
+      .transform((val) => val === 'true'),
+    REDIS_TLS_REJECT_UNAUTHORIZED: z
+      .string()
+      .default('false')
+      .transform((val) => val === 'true'),
   })
 
   validate(config: Record<string, unknown>): Env {
