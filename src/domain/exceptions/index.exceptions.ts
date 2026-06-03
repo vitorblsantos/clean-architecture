@@ -1,3 +1,3 @@
 export * from './domain.error'
 export * from './invalid-profile-data.error'
-export * from './profile-not-found.error'
+export * from './profiles-not-found.error'
