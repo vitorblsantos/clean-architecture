@@ -33,7 +33,7 @@ export class ProfilesService implements IProfilesService {
   }
 
   async delete(id: string): Promise<void> {
-    await this.profilesRepository.update(id, { updatedAt: new Date(), deletedAt: new Date() })
+    await this.profilesRepository.delete(id)
   }
 
   async enqueue(payload: Partial<ProfilesEntity>): Promise<void> {
