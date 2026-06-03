@@ -1,2 +1,2 @@
 export * from './environment/environment.service'
-export * from './profile/profile.service'
+export * from './profiles/profiles.service'

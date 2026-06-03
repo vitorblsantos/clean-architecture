@@ -5,16 +5,18 @@ import { InvalidProfileDataError } from '@domain/exceptions/invalid-profile-data
 import { KafkaConfig } from '@domain/interfaces/config/kafka.interface'
 import { IKafkaService } from '@domain/interfaces/kafka/kafka.interface'
 import { IProfilesRepository } from '@domain/interfaces/repositories/profiles-repository.interface'
+import { IRedisService } from '@domain/interfaces/redis/redis.interface'
 import { IProfilesService } from '@domain/interfaces/services/profile-service.interface'
-import { ProfileDomainService } from '@domain/services/profile/profile.service'
+import { ProfilesDomainService } from '@domain/services/profiles/profiles.service'
 
 @Injectable()
 export class ProfilesService implements IProfilesService {
   constructor(
     private readonly kafkaConfig: KafkaConfig,
     private readonly kafkaService: IKafkaService,
-    private readonly profileDomainService: ProfileDomainService,
-    private readonly profileRepository: IProfilesRepository,
+    private readonly profilesDomainService: ProfilesDomainService,
+    private readonly profilesRepository: IProfilesRepository,
+    private readonly redisService: IRedisService,
   ) {}
 
   async create(payload: Partial<ProfilesEntity>): Promise<ProfilesEntity> {
@@ -22,16 +24,16 @@ export class ProfilesService implements IProfilesService {
 
     if (!lastname || !name) throw new InvalidProfileDataError('Name and lastname are required')
 
-    const profilesEntity = this.profileDomainService.createProfilesEntity({
+    const profilesEntity = this.profilesDomainService.createProfilesEntity({
       name,
       lastname,
     })
 
-    return await this.profileRepository.create(profilesEntity)
+    return await this.profilesRepository.create(profilesEntity)
   }
 
   async delete(id: string): Promise<void> {
-    await this.profileRepository.update(id, { updatedAt: new Date(), deletedAt: new Date() })
+    await this.profilesRepository.update(id, { updatedAt: new Date(), deletedAt: new Date() })
   }
 
   async enqueue(payload: Partial<ProfilesEntity>): Promise<void> {
@@ -42,14 +44,22 @@ export class ProfilesService implements IProfilesService {
   }
 
   async findAll(): Promise<ProfilesEntity[]> {
-    return await this.profileRepository.findAll()
+    return await this.profilesRepository.findAll()
   }
 
   async findById(id: string): Promise<ProfilesEntity> {
-    return await this.profileRepository.findById(id)
+    const cacheKey = `profile:id:${id}`
+    const cached = await this.redisService.get(cacheKey)
+
+    if (cached) return JSON.parse(cached) as ProfilesEntity
+
+    const profile = await this.profilesRepository.findById(id)
+
+    await this.redisService.set(cacheKey, JSON.stringify(profile), 300)
+    return profile
   }
 
   async update(payload: Partial<ProfilesEntity> & { id: string }): Promise<ProfilesEntity> {
-    return await this.profileRepository.update(payload.id, payload)
+    return await this.profilesRepository.update(payload.id, payload)
   }
 }

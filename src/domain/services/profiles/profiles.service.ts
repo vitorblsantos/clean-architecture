@@ -2,7 +2,7 @@ import { v6 as uuidv6 } from 'uuid'
 
 import { ProfilesEntity } from '@domain/entities/profiles/profiles.entity'
 
-export class ProfileDomainService {
+export class ProfilesDomainService {
   canCreateProfile(existingProfile: ProfilesEntity | null): boolean {
     return !existingProfile
   }

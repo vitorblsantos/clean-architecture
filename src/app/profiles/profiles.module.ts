@@ -13,11 +13,12 @@ import { ProfilesService } from '@app/services/profiles/profiles.service'
 
 import { IProfilesRepository } from '@domain/interfaces/repositories/profiles-repository.interface'
 import { IProfilesService } from '@domain/interfaces/services/profile-service.interface'
-import { ProfileDomainService } from '@domain/services/profile/profile.service'
+import { ProfilesDomainService } from '@domain/services/profiles/profiles.service'
 
 import { EnvironmentModule } from '@infra/environment/environment.module'
 import { KafkaModule } from '@infra/kafka/kafka.module'
 import { LoggerModule } from '@infra/logger/logger.module'
+import { RedisModule } from '@infra/redis/redis.module'
 import { ProfilesModel } from '@infra/models/profiles/profiles.model'
 import { ProfilesRepository } from '@infra/repositories/profiles/profiles.repository'
 
@@ -26,15 +27,15 @@ export const Queries = [GetProfilesHandler, GetProfileByIdHandler]
 export const Sagas = []
 
 @Module({
-  imports: [EnvironmentModule, KafkaModule, LoggerModule, TypeOrmModule.forFeature([ProfilesModel])],
+  imports: [EnvironmentModule, KafkaModule, LoggerModule, RedisModule, TypeOrmModule.forFeature([ProfilesModel])],
   providers: [
-    ProfileDomainService,
+    ProfilesDomainService,
     { provide: IProfilesService, useClass: ProfilesService },
     { provide: IProfilesRepository, useClass: ProfilesRepository },
     ...Commands,
     ...Queries,
     ...Sagas,
   ],
-  exports: [IProfilesService, ProfileDomainService],
+  exports: [IProfilesService, ProfilesDomainService],
 })
 export class ProfileModule {}
