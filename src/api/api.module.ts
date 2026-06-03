@@ -8,9 +8,10 @@ import { ProfilesController } from '@api/controllers/profiles/profiles.controlle
 import { AppModule } from '@app/app.module'
 import { EnvironmentModule } from '@infra/environment/environment.module'
 import { KafkaHealthIndicator } from '@infra/health/kafka.health'
+import { RedisModule } from '@infra/redis/redis.module'
 
 @Module({
-  imports: [AppModule, CqrsModule, EnvironmentModule, TerminusModule],
+  imports: [AppModule, CqrsModule, EnvironmentModule, RedisModule, TerminusModule],
   controllers: [HealthController, ProfilesController],
   providers: [KafkaHealthIndicator],
 })

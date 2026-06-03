@@ -5,9 +5,10 @@ import { AppConfig } from '@domain/interfaces/config/app.interface'
 import { DatabaseConfig } from '@domain/interfaces/config/database.interface'
 import { KafkaConfig } from '@domain/interfaces/config/kafka.interface'
 import { EEnvironment } from '@domain/interfaces/enums/environment.enum'
+import { RedisConfig } from '@domain/interfaces/config/redis.interface'
 
 @Injectable()
-export class EnvironmentService implements AppConfig, DatabaseConfig, KafkaConfig {
+export class EnvironmentService implements AppConfig, DatabaseConfig, KafkaConfig, RedisConfig {
   constructor(private configService: ConfigService) {}
 
   getAppEnvironment(): EEnvironment {
@@ -71,5 +72,29 @@ export class EnvironmentService implements AppConfig, DatabaseConfig, KafkaConfi
 
   getKafkaTopicProfilesSyncDLQ(): string {
     return this.configService.getOrThrow<string>('KAFKA_TOPIC_PROFILES_SYNC_DLQ')
+  }
+
+  getRedisDb(): number {
+    return this.configService.getOrThrow<number>('REDIS_DB')
+  }
+
+  getRedisHost(): string {
+    return this.configService.getOrThrow<string>('REDIS_HOST')
+  }
+
+  getRedisPassword(): string {
+    return this.configService.get<string>('REDIS_PASSWORD') ?? ''
+  }
+
+  getRedisPort(): number {
+    return this.configService.getOrThrow<number>('REDIS_PORT')
+  }
+
+  getRedisTlsEnabled(): boolean {
+    return this.configService.getOrThrow<boolean>('REDIS_TLS_ENABLED')
+  }
+
+  getRedisTlsRejectUnauthorized(): boolean {
+    return this.configService.getOrThrow<boolean>('REDIS_TLS_REJECT_UNAUTHORIZED')
   }
 }
