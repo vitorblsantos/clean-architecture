@@ -98,6 +98,21 @@ services:
     volumes:
       - db:/var/lib/postgresql
 
+  redis:
+    container_name: redis
+    environment:
+      REDIS_DB: ${REDIS_DB:-0}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-1234}
+      REDIS_TLS_ENABLED: ${REDIS_TLS_ENABLED:-false}
+      REDIS_TLS_REJECT_UNAUTHORIZED: ${REDIS_TLS_REJECT_UNAUTHORIZED:-false}
+    image: redis:7-alpine
+    networks:
+      - clean-arch-network
+    ports:
+      - '${REDIS_PORT:-6379}:6379'
+    profiles: [dev]
+    restart: unless-stopped
+
   zookeeper:
     container_name: zookeeper
     ports:
