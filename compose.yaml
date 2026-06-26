@@ -78,7 +78,6 @@ services:
     ports:
       - '8082:8080'
     profiles: [dev]
-  
 
   ollama:
     image: ollama/ollama:latest
