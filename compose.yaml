@@ -21,6 +21,8 @@ services:
     depends_on:
       kafka:
         condition: service_healthy
+      ollama-init:
+        condition: service_completed_successfully
     environment:
       HOST: 0.0.0.0
       NODE_ENV: ${NODE_ENV:-local}
@@ -76,6 +78,54 @@ services:
     ports:
       - '8082:8080'
     profiles: [dev]
+  
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    networks:
+      - clean-arch-network
+    ports:
+      - '${OLLAMA_PORT:-11434}:11434'
+    volumes:
+      - ollama:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-24h}
+      OLLAMA_NUM_THREADS: ${OLLAMA_NUM_THREADS:-4}
+      OLLAMA_NUM_CTX: ${OLLAMA_NUM_CTX:-8192}
+      OLLAMA_NUM_PARALLEL: ${OLLAMA_NUM_PARALLEL:-2}
+      OLLAMA_MAX_LOADED_MODELS: ${OLLAMA_MAX_LOADED_MODELS:-2}
+    healthcheck:
+      test: ['CMD-SHELL', 'ollama list >/dev/null 2>&1 || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  ollama-init:
+    image: ollama/ollama:latest
+    container_name: ollama-init
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - clean-arch-network
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
+      OLLAMA_CUSTOM_MODEL: ${OLLAMA_CUSTOM_MODEL:-data-quality}
+    volumes:
+      - ./Modelfile:/Modelfile:ro
+    entrypoint: >
+      /bin/sh -c "
+        echo \"Baixando modelo base $${OLLAMA_MODEL}...\";
+        ollama pull \"$${OLLAMA_MODEL}\";
+        echo \"Criando modelo customizado $${OLLAMA_CUSTOM_MODEL}...\";
+        ollama create \"$${OLLAMA_CUSTOM_MODEL}\" -f /Modelfile;
+        echo 'Modelos prontos!';
+      "
+    restart: 'no'
 
   postgres:
     container_name: database
@@ -127,3 +177,4 @@ services:
 
 volumes:
   db:
+  ollama:
