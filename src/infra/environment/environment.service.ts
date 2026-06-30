@@ -4,11 +4,12 @@ import { ConfigService } from '@nestjs/config'
 import { AppConfig } from '@domain/interfaces/config/app.interface'
 import { DatabaseConfig } from '@domain/interfaces/config/database.interface'
 import { KafkaConfig } from '@domain/interfaces/config/kafka.interface'
+import { LlmConfig } from '@domain/interfaces/config/llm.interface'
 import { EEnvironment } from '@domain/interfaces/enums/environment.enum'
 import { RedisConfig } from '@domain/interfaces/config/redis.interface'
 
 @Injectable()
-export class EnvironmentService implements AppConfig, DatabaseConfig, KafkaConfig, RedisConfig {
+export class EnvironmentService implements AppConfig, DatabaseConfig, KafkaConfig, LlmConfig, RedisConfig {
   constructor(private configService: ConfigService) {}
 
   getAppEnvironment(): EEnvironment {
@@ -96,5 +97,17 @@ export class EnvironmentService implements AppConfig, DatabaseConfig, KafkaConfi
 
   getRedisTlsRejectUnauthorized(): boolean {
     return this.configService.getOrThrow<boolean>('REDIS_TLS_REJECT_UNAUTHORIZED')
+  }
+
+  getLlmBaseUrl(): string {
+    return this.configService.getOrThrow<string>('OLLAMA_BASE_URL')
+  }
+
+  getLlmModel(): string {
+    return this.configService.getOrThrow<string>('OLLAMA_MODEL')
+  }
+
+  getLlmTimeout(): number {
+    return this.configService.getOrThrow<number>('OLLAMA_TIMEOUT')
   }
 }
