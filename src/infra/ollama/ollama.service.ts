@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common'
 import { firstValueFrom } from 'rxjs'
 
 import { LlmConfig } from '@domain/interfaces/config/llm.interface'
-import { ILLMService } from '@domain/interfaces/llm/llm.interface'
+import { IOllamaService } from '@domain/interfaces/ollama/ollama.interface'
 import { ILogger } from '@domain/interfaces/logger/logger.interface'
 
 interface OllamaGenerateResponse {
@@ -11,9 +11,7 @@ interface OllamaGenerateResponse {
 }
 
 @Injectable()
-export class LLMService implements ILLMService {
-  private static readonly CONTEXT = 'LLMService'
-
+export class OllamaService implements IOllamaService {
   constructor(
     private readonly http: HttpService,
     private readonly config: LlmConfig,
@@ -38,7 +36,7 @@ export class LLMService implements ILLMService {
       return (data.response ?? '').trim()
     } catch (error) {
       const trace = error instanceof Error ? error.stack : String(error)
-      this.logger.error(LLMService.CONTEXT, 'Failed to generate LLM response', trace)
+      this.logger.error('OllamaService', 'Failed to generate LLM response', trace)
       throw error
     }
   }

@@ -1,15 +1,15 @@
 import { HttpModule } from '@nestjs/axios'
 import { Module } from '@nestjs/common'
 
-import { ILLMService } from '@domain/interfaces/llm/llm.interface'
+import { IOllamaService } from '@domain/interfaces/ollama/ollama.interface'
 
 import { EnvironmentModule } from '@infra/environment/environment.module'
-import { LLMService } from '@infra/llm/llm.service'
+import { OllamaService } from '@infra/ollama/ollama.service'
 import { LoggerModule } from '@infra/logger/logger.module'
 
 @Module({
   imports: [EnvironmentModule, HttpModule, LoggerModule],
-  providers: [LLMService, { provide: ILLMService, useExisting: LLMService }],
-  exports: [ILLMService],
+  providers: [OllamaService, { provide: IOllamaService, useExisting: OllamaService }],
+  exports: [IOllamaService],
 })
-export class LLMModule {}
+export class OllamaModule {}
