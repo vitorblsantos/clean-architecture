@@ -2,8 +2,8 @@ import { HttpService } from '@nestjs/axios'
 import { Injectable } from '@nestjs/common'
 import { firstValueFrom } from 'rxjs'
 
-import { LlmConfig } from '@domain/interfaces/config/llm.interface'
-import { IOllamaService } from '@domain/interfaces/ollama/ollama.interface'
+import { LLMConfig } from '@domain/interfaces/config/llm.interface'
+import { ILLMService } from '@domain/interfaces/llm/llm.interface'
 import { ILogger } from '@domain/interfaces/logger/logger.interface'
 
 interface OllamaGenerateResponse {
@@ -11,10 +11,10 @@ interface OllamaGenerateResponse {
 }
 
 @Injectable()
-export class OllamaService implements IOllamaService {
+export class OllamaService implements ILLMService {
   constructor(
     private readonly http: HttpService,
-    private readonly config: LlmConfig,
+    private readonly config: LLMConfig,
     private readonly logger: ILogger,
   ) {}
 
@@ -22,14 +22,14 @@ export class OllamaService implements IOllamaService {
     try {
       const { data } = await firstValueFrom(
         this.http.post<OllamaGenerateResponse>(
-          `${this.config.getLlmBaseUrl()}/api/generate`,
+          `${this.config.getLLMBaseUrl()}/api/generate`,
           {
-            model: this.config.getLlmModel(),
+            model: this.config.getLLMModel(),
             prompt,
             stream: false,
             options,
           },
-          { timeout: this.config.getLlmTimeout() },
+          { timeout: this.config.getLLMTimeout() },
         ),
       )
 

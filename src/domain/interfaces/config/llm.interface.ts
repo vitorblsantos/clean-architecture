@@ -1,5 +1,5 @@
-export abstract class LlmConfig {
-  abstract getLlmBaseUrl(): string
-  abstract getLlmModel(): string
-  abstract getLlmTimeout(): number
+export abstract class LLMConfig {
+  abstract getLLMBaseUrl(): string
+  abstract getLLMModel(): string
+  abstract getLLMTimeout(): number
 }

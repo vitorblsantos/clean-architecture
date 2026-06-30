@@ -1,3 +1,3 @@
-export abstract class IOllamaService {
+export abstract class ILLMService {
   abstract generate(prompt: string, options?: Record<string, unknown>): Promise<string>
 }
