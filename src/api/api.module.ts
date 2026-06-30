@@ -3,6 +3,7 @@ import { CqrsModule } from '@nestjs/cqrs'
 import { TerminusModule } from '@nestjs/terminus'
 
 import { HealthController } from '@api/controllers/health/health.controller'
+import { LLMController } from '@api/controllers/llm/llm.controller'
 import { ProfilesController } from '@api/controllers/profiles/profiles.controller'
 
 import { AppModule } from '@app/app.module'
@@ -12,7 +13,7 @@ import { RedisModule } from '@infra/redis/redis.module'
 
 @Module({
   imports: [AppModule, CqrsModule, EnvironmentModule, RedisModule, TerminusModule],
-  controllers: [HealthController, ProfilesController],
+  controllers: [HealthController, LLMController, ProfilesController],
   providers: [KafkaHealthIndicator],
 })
 export class ApiModule {}
