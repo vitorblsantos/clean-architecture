@@ -77,6 +77,48 @@ services:
       - '8082:8080'
     profiles: [dev]
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: unless-stopped
+
+    ports:
+      - '11434:11434'
+
+    volumes:
+      - ollama:/root/.ollama
+
+    environment:
+      - OLLAMA_KEEP_ALIVE=24h
+      - OLLAMA_NUM_THREADS=16
+      - OLLAMA_NUM_CTX=2048
+
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:11434/api/tags || exit 1']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  ollama-init:
+    image: curlimages/curl:latest
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+    volumes:
+      - ollama:/root/.ollama
+
+    entrypoint: >
+      /bin/sh -c "
+      echo 'Aguardando Ollama...';
+      until curl -s http://ollama:11434/api/tags > /dev/null; do
+        sleep 2;
+      done;
+      echo 'Baixando modelo...';
+      curl http://ollama:11434/api/pull -d '{\"name\":\"qwen2.5:3b\"}';
+      echo 'Modelo pronto.';
+      "
+
   postgres:
     container_name: database
     environment:
@@ -127,3 +169,4 @@ services:
 
 volumes:
   db:
+  ollama:
