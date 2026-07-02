@@ -1,0 +1,31 @@
+import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common'
+import { CommandBus } from '@nestjs/cqrs'
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger'
+
+import { OllamaGenerateReqDto, OllamaGenerateResDto } from '@api/dto/llm/llm.dto'
+
+import { LLMGenerateCommand } from '@app/llm/command/generate.command'
+
+@ApiTags('LLM')
+@Controller({
+  path: 'llm',
+  version: '1',
+})
+export class LLMController {
+  constructor(private readonly commandBus: CommandBus) {}
+
+  @Post('/')
+  @ApiBody({ type: OllamaGenerateReqDto })
+  @ApiOperation({ description: 'Generate LLM response' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'LLM response', type: OllamaGenerateResDto })
+  @ApiResponse({ status: HttpStatus.BAD_REQUEST, description: 'Bad request' })
+  @ApiResponse({ status: HttpStatus.INTERNAL_SERVER_ERROR, description: 'Internal server error' })
+  @HttpCode(HttpStatus.OK)
+  async generate(@Body() body: OllamaGenerateReqDto): Promise<OllamaGenerateResDto> {
+    const response = await this.commandBus.execute<LLMGenerateCommand, string>(
+      new LLMGenerateCommand(body.prompt, { ...body.options }),
+    )
+
+    return OllamaGenerateResDto.fromResponse(response)
+  }
+}
