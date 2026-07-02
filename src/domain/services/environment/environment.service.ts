@@ -29,6 +29,11 @@ export class EnvironmentDomainService {
     KAFKA_TOPIC_PROFILES_SYNC_DLQ: z.string().min(1).optional(),
 
     NODE_ENV: z.enum(EEnvironment).default(EEnvironment.Local),
+
+    OLLAMA_BASE_URL: z.string().url().default('http://localhost:11434'),
+    OLLAMA_MODEL: z.string().min(1).default('qwen2.5:3b'),
+    OLLAMA_TIMEOUT: z.coerce.number().default(30000),
+
     PORT: z.coerce.number().default(8080),
 
     REDIS_DB: z.coerce.number().default(0),

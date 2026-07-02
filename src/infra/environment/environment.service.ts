@@ -4,11 +4,12 @@ import { ConfigService } from '@nestjs/config'
 import { AppConfig } from '@domain/interfaces/config/app.interface'
 import { DatabaseConfig } from '@domain/interfaces/config/database.interface'
 import { KafkaConfig } from '@domain/interfaces/config/kafka.interface'
+import { LLMConfig } from '@domain/interfaces/config/llm.interface'
 import { EEnvironment } from '@domain/interfaces/enums/environment.enum'
 import { RedisConfig } from '@domain/interfaces/config/redis.interface'
 
 @Injectable()
-export class EnvironmentService implements AppConfig, DatabaseConfig, KafkaConfig, RedisConfig {
+export class EnvironmentService implements AppConfig, DatabaseConfig, KafkaConfig, LLMConfig, RedisConfig {
   constructor(private configService: ConfigService) {}
 
   getAppEnvironment(): EEnvironment {
@@ -72,6 +73,18 @@ export class EnvironmentService implements AppConfig, DatabaseConfig, KafkaConfi
 
   getKafkaTopicProfilesSyncDLQ(): string {
     return this.configService.getOrThrow<string>('KAFKA_TOPIC_PROFILES_SYNC_DLQ')
+  }
+
+  getLLMBaseUrl(): string {
+    return this.configService.getOrThrow<string>('OLLAMA_BASE_URL')
+  }
+
+  getLLMModel(): string {
+    return this.configService.getOrThrow<string>('OLLAMA_MODEL')
+  }
+
+  getLLMTimeout(): number {
+    return this.configService.getOrThrow<number>('OLLAMA_TIMEOUT')
   }
 
   getRedisDb(): number {
