@@ -24,6 +24,7 @@ import { EnvironmentService } from '@infra/environment/environment.service'
     { provide: KafkaConfig, useExisting: EnvironmentService },
     { provide: LLMConfig, useExisting: EnvironmentService },
     { provide: RedisConfig, useExisting: EnvironmentService },
+    { provide: LLMConfig, useExisting: EnvironmentService },
   ],
   exports: [EnvironmentService, AppConfig, DatabaseConfig, KafkaConfig, LLMConfig, RedisConfig],
 })

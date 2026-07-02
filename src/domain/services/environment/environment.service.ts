@@ -48,6 +48,10 @@ export class EnvironmentDomainService {
       .string()
       .default('false')
       .transform((val) => val === 'true'),
+
+    OLLAMA_BASE_URL: z.string().url().default('http://localhost:11434'),
+    OLLAMA_MODEL: z.string().min(1).default('data-quality'),
+    OLLAMA_TIMEOUT: z.coerce.number().default(30000),
   })
 
   validate(config: Record<string, unknown>): Env {

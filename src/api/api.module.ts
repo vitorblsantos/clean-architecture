@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, Provider } from '@nestjs/common'
 import { CqrsModule } from '@nestjs/cqrs'
 import { TerminusModule } from '@nestjs/terminus'
 
@@ -10,10 +10,13 @@ import { AppModule } from '@app/app.module'
 import { EnvironmentModule } from '@infra/environment/environment.module'
 import { KafkaHealthIndicator } from '@infra/health/kafka.health'
 import { RedisModule } from '@infra/redis/redis.module'
+import { RedisHealthIndicator } from '@infra/health/redis.health'
+
+const healthProviders: Provider[] = [KafkaHealthIndicator, RedisHealthIndicator]
 
 @Module({
   imports: [AppModule, CqrsModule, EnvironmentModule, RedisModule, TerminusModule],
   controllers: [HealthController, LLMController, ProfilesController],
-  providers: [KafkaHealthIndicator],
+  providers: [...healthProviders],
 })
 export class ApiModule {}

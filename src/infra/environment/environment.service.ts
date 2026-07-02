@@ -110,4 +110,16 @@ export class EnvironmentService implements AppConfig, DatabaseConfig, KafkaConfi
   getRedisTlsRejectUnauthorized(): boolean {
     return this.configService.getOrThrow<boolean>('REDIS_TLS_REJECT_UNAUTHORIZED')
   }
+
+  getLLMBaseUrl(): string {
+    return this.configService.getOrThrow<string>('OLLAMA_BASE_URL')
+  }
+
+  getLLMModel(): string {
+    return this.configService.getOrThrow<string>('OLLAMA_MODEL')
+  }
+
+  getLLMTimeout(): number {
+    return this.configService.getOrThrow<number>('OLLAMA_TIMEOUT')
+  }
 }
