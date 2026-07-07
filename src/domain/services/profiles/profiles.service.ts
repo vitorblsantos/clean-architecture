@@ -1,19 +1,17 @@
 import { v6 as uuidv6 } from 'uuid'
 
+import { CreateProfileProps } from '@domain/entities/profiles/create-profile.props'
 import { ProfilesEntity } from '@domain/entities/profiles/profiles.entity'
 
 export class ProfilesDomainService {
-  canCreateProfile(existingProfile: ProfilesEntity | null): boolean {
+  canCreateProfile(existingProfile: ProfilesEntity): boolean {
     return !existingProfile
   }
 
-  createProfilesEntity(profileData: {
-    name: ProfilesEntity['name']
-    lastname: ProfilesEntity['lastname']
-  }): ProfilesEntity {
+  createProfilesEntity(profileData: CreateProfileProps): ProfilesEntity {
     this.validateProfileData(profileData)
 
-    const profile: ProfilesEntity = {
+    const profile = {
       id: this.generateProfileId(),
       deletedAt: null,
       name: profileData.name,
@@ -29,18 +27,18 @@ export class ProfilesDomainService {
     return !!(profile.name && profile.lastname)
   }
 
-  validateProfileData(profileData: { name: ProfilesEntity['name']; lastname: ProfilesEntity['lastname'] }): void {
+  validateProfileData(profileData: CreateProfileProps): void {
     this.validateName(profileData.name)
     this.validateLastname(profileData.lastname)
   }
 
-  validateName(name: ProfilesEntity['name']): void {
+  validateName(name: string): void {
     if (!name || name.trim().length < 2) {
       throw new Error('Name must be at least 2 characters long')
     }
   }
 
-  validateLastname(lastname: ProfilesEntity['lastname']): void {
+  validateLastname(lastname: string): void {
     if (!lastname || lastname.trim().length < 2) {
       throw new Error('Lastname must be at least 2 characters long')
     }
