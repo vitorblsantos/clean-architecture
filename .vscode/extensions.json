@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "mattpocock.ts-error-translator",
+    "wakatime.vscode-wakatime",
+    "esbenp.prettier-vscode",
+    "rvest.vs-code-prettier-eslint",
+    "dbaeumer.vscode-eslint"
+  ]
+}
